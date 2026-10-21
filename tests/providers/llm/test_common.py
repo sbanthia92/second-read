@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from reviewdesk.contracts import ModelTier
-from reviewdesk.providers.llm import (
+from secondread.contracts import ModelTier
+from secondread.providers.llm import (
     DEFAULT_ANTHROPIC_MODELS,
     DEFAULT_OPENAI_MODELS,
     AnthropicLLM,
@@ -16,8 +16,8 @@ from reviewdesk.providers.llm import (
     RetryPolicy,
     make_llm_client,
 )
-from reviewdesk.providers.llm._common import json_schema_for, validate
-from reviewdesk.providers.llm.config import resolve_models
+from secondread.providers.llm._common import json_schema_for, validate
+from secondread.providers.llm.config import resolve_models
 from tests.providers.llm.replay import FAKE_KEY, FIXTURES
 from tests.providers.llm.schemas import Cited, Tree, Verdict
 
@@ -92,7 +92,7 @@ def test_fixtures_contain_no_secrets() -> None:
 def test_validate_decodes_json_encoded_list_fields() -> None:
     from pydantic import BaseModel
 
-    from reviewdesk.providers.llm._common import unstringify, validate
+    from secondread.providers.llm._common import unstringify, validate
 
     class Item(BaseModel):
         name: str
@@ -118,7 +118,7 @@ def test_escape_inner_quotes_repairs_unescaped_quotes_in_strings() -> None:
 
     from pydantic import BaseModel
 
-    from reviewdesk.providers.llm._common import escape_inner_quotes, validate
+    from secondread.providers.llm._common import escape_inner_quotes, validate
 
     broken = (
         '[\n  {"quote": "he whispered, "Keep the flag flying" to Murphy",'

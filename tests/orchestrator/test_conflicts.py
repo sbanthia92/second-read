@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 
 import pytest
 
-from reviewdesk.contracts import (
+from secondread.contracts import (
     AgentName,
     Finding,
     Rebuttal,
@@ -15,7 +15,7 @@ from reviewdesk.contracts import (
     Span,
     Verdict,
 )
-from reviewdesk.orchestrator.conflicts import (
+from secondread.orchestrator.conflicts import (
     discard_fact_rebuttals_on_verified,
     downgrade_unsourced_rebuttals,
     drop_copy_edits_on_flagged_spans,
@@ -25,7 +25,7 @@ from reviewdesk.orchestrator.conflicts import (
     rank_rebuttals,
     resolve_conflicts,
 )
-from reviewdesk.testing.fakes import sample_ledger
+from secondread.testing.fakes import sample_ledger
 from tests.orchestrator.builders import (
     bare_ledger,
     claim_span,

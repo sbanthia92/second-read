@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from reviewdesk.agents.originality import distinctive_sentences, split_sentences
-from reviewdesk.contracts import Document
-from reviewdesk.testing.fakes import OPINION_DOC, sample_documents
+from secondread.agents.originality import distinctive_sentences, split_sentences
+from secondread.contracts import Document
+from secondread.testing.fakes import OPINION_DOC, sample_documents
 
 
 @pytest.mark.parametrize("doc", sample_documents(), ids=lambda d: d.id)
@@ -114,7 +114,7 @@ def test_empty_and_heading_only_documents() -> None:
 
 
 def test_off_topic_aphorism_is_sampled():
-    from reviewdesk.agents.originality.sentences import off_topic_sentences, sample_sentences
+    from secondread.agents.originality.sentences import off_topic_sentences, sample_sentences
 
     text = (
         "Leicester City won the Premier League title with a modest wage bill. "

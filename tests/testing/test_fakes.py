@@ -3,7 +3,7 @@ import asyncio
 import pytest
 from pydantic import BaseModel
 
-from reviewdesk.contracts import (
+from secondread.contracts import (
     Agent,
     AgentResult,
     Budget,
@@ -18,7 +18,7 @@ from reviewdesk.contracts import (
     SearchResult,
     Usage,
 )
-from reviewdesk.testing.fakes import (
+from secondread.testing.fakes import (
     FakeAgent,
     FakeDevilsAdvocate,
     FakeFactChecker,

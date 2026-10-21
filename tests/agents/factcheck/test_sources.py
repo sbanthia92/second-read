@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import asyncio
 
-from reviewdesk.agents.factcheck import FactCheckAgent
-from reviewdesk.agents.factcheck.prompts import document_block, source_block
-from reviewdesk.agents.factcheck.schemas import Stance
-from reviewdesk.agents.factcheck.sources import (
+from secondread.agents.factcheck import FactCheckAgent
+from secondread.agents.factcheck.prompts import document_block, source_block
+from secondread.agents.factcheck.schemas import Stance
+from secondread.agents.factcheck.sources import (
     Source,
     domain,
     find_in_page,
@@ -16,7 +16,7 @@ from reviewdesk.agents.factcheck.sources import (
     settles,
     verified_quote,
 )
-from reviewdesk.contracts import (
+from secondread.contracts import (
     Claim,
     ClaimLedger,
     ClaimType,
@@ -24,7 +24,7 @@ from reviewdesk.contracts import (
     SearchResult,
     Span,
 )
-from reviewdesk.testing.fakes import FakeLLM, make_context
+from secondread.testing.fakes import FakeLLM, make_context
 
 
 def _source(url: str, stance: Stance, primary: bool = False) -> Source:

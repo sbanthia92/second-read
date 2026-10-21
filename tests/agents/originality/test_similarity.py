@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from reviewdesk.agents.originality import DEFAULT_THRESHOLD, normalize_url, same_url, similarity
-from reviewdesk.agents.originality.similarity import MAX_EXCERPT_CHARS
+from secondread.agents.originality import DEFAULT_THRESHOLD, normalize_url, same_url, similarity
+from secondread.agents.originality.similarity import MAX_EXCERPT_CHARS
 
 SENTENCE = "Engineers calibrated sapphire resonators before measuring gravitational redshift."
 

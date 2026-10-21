@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-from reviewdesk.providers.search import PROVIDERS, make_search_client
+from secondread.providers.search import PROVIDERS, make_search_client
 
 pytestmark = pytest.mark.live
 

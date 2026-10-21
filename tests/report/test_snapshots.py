@@ -16,9 +16,9 @@ from pathlib import Path
 
 import pytest
 
-from reviewdesk.contracts import Document, Report
-from reviewdesk.report import render_email, render_html, render_markdown, render_text
-from reviewdesk.testing.fakes import OPINION_DOC, SHORT_DOC, empty_report, sample_report
+from secondread.contracts import Document, Report
+from secondread.report import render_email, render_html, render_markdown, render_text
+from secondread.testing.fakes import OPINION_DOC, SHORT_DOC, empty_report, sample_report
 
 SNAPSHOT_DIR = Path(__file__).parent / "snapshots"
 UPDATE = os.environ.get("UPDATE_SNAPSHOTS") == "1"

@@ -1,4 +1,4 @@
-from reviewdesk.providers.fetch.extract import extract_readable, plain_text
+from secondread.providers.fetch.extract import extract_readable, plain_text
 
 ARTICLE_PAGE = """<!doctype html>
 <html><head>

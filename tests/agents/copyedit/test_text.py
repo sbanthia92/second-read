@@ -6,7 +6,7 @@ import itertools
 
 import pytest
 
-from reviewdesk.agents.copyedit.text import (
+from secondread.agents.copyedit.text import (
     MatchMethod,
     TextLocator,
     delimit,
@@ -14,8 +14,8 @@ from reviewdesk.agents.copyedit.text import (
     split_into_chunks,
     title_span,
 )
-from reviewdesk.contracts import Span
-from reviewdesk.testing.fakes import DESIGN_DOC, OPINION_DOC, SHORT_DOC
+from secondread.contracts import Span
+from secondread.testing.fakes import DESIGN_DOC, OPINION_DOC, SHORT_DOC
 
 
 def test_exact_and_repeated_matches() -> None:

@@ -3,11 +3,11 @@
 import httpcore
 import pytest
 
-from reviewdesk.contracts import BlockedURLError, FetchError
-from reviewdesk.providers.fetch import GuardedNetworkBackend, HttpFetcher
-from reviewdesk.providers.fetch.guarded import GuardedTransport
-from reviewdesk.providers.fetch.ssrf import Resolver
-from reviewdesk.providers.search import RetryPolicy, no_sleep
+from secondread.contracts import BlockedURLError, FetchError
+from secondread.providers.fetch import GuardedNetworkBackend, HttpFetcher
+from secondread.providers.fetch.guarded import GuardedTransport
+from secondread.providers.fetch.ssrf import Resolver
+from secondread.providers.search import RetryPolicy, no_sleep
 
 PUBLIC = "93.184.216.34"
 

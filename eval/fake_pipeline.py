@@ -1,6 +1,6 @@
 """``FakeAgent``-based pipelines, so the harness runs end to end offline.
 
-The real orchestrator (``reviewdesk.pipeline.run_review``) is not part of
+The real orchestrator (``secondread.pipeline.run_review``) is not part of
 this package. ``FakeAgentPipeline`` is a small stand-in with the same
 ``ReviewPipeline`` shape: it runs a list of agents (usually ``FakeAgent``s)
 over one ``ReviewContext``, applies their results to a ledger in list order,
@@ -22,7 +22,7 @@ from collections import Counter
 from collections.abc import Callable, Sequence
 
 from eval.dataset import ConflictRule, DefectType, SeededDefect, SeededDocument
-from reviewdesk.contracts import (
+from secondread.contracts import (
     PROFILE_AGENTS,
     AddClaim,
     AddRebuttal,
@@ -51,7 +51,7 @@ from reviewdesk.contracts import (
     Usage,
     Verdict,
 )
-from reviewdesk.testing.fakes import FIXED_TIME, FakeAgent, FakeFetcher, FakeLLM, FakeSearch
+from secondread.testing.fakes import FIXED_TIME, FakeAgent, FakeFetcher, FakeLLM, FakeSearch
 
 AgentsFactory = Callable[[Document, Profile], Sequence[Agent]]
 """Builds the agents for one run of one document."""

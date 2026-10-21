@@ -6,8 +6,8 @@ from typing import Any
 
 import pytest
 
-from reviewdesk.agents.factcheck import FactCheckAgent
-from reviewdesk.contracts import (
+from secondread.agents.factcheck import FactCheckAgent
+from secondread.contracts import (
     MAX_RESEARCH_ITERATIONS,
     AddResearchStep,
     Agent,
@@ -33,7 +33,7 @@ from reviewdesk.contracts import (
     Severity,
     Verdict,
 )
-from reviewdesk.testing.fakes import (
+from secondread.testing.fakes import (
     FIXED_TIME,
     OPINION_DOC,
     FakeFetcher,

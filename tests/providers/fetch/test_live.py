@@ -2,8 +2,8 @@
 
 import pytest
 
-from reviewdesk.contracts import BlockedURLError
-from reviewdesk.providers.fetch import HttpFetcher
+from secondread.contracts import BlockedURLError
+from secondread.providers.fetch import HttpFetcher
 
 pytestmark = pytest.mark.live
 

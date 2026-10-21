@@ -1,5 +1,5 @@
-from reviewdesk.agents.factcheck import prompts
-from reviewdesk.contracts import Claim, ClaimType, Span
+from secondread.agents.factcheck import prompts
+from secondread.contracts import Claim, ClaimType, Span
 
 
 def _claim(standalone: str = "") -> Claim:

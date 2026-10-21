@@ -1,0 +1,10 @@
+"""Copy editor agent.
+
+Line-level grammar, clarity and concision suggestions, each a
+``Severity.STYLE`` finding with a span into the document and a suggestion.
+"""
+
+from secondread.agents.copyedit.agent import CopyEditAgent, EditOutcome
+from secondread.agents.copyedit.prompts import TAG_EDIT, CopyEditOutput, ProposedEdit
+
+__all__ = ["TAG_EDIT", "CopyEditAgent", "CopyEditOutput", "EditOutcome", "ProposedEdit"]

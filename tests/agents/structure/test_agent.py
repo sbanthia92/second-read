@@ -4,16 +4,16 @@ from __future__ import annotations
 
 from typing import Any
 
-from reviewdesk.agents.copyedit.text import normalize, title_span
-from reviewdesk.agents.structure import (
+from secondread.agents.copyedit.text import normalize, title_span
+from secondread.agents.structure import (
     TAG_DESIGN_DOC,
     TAG_REVIEW,
     StructureAgent,
     StructureOutput,
     build_outline,
 )
-from reviewdesk.agents.structure.prompts import SYSTEM_PROMPT_DESIGN_DOC, SYSTEM_PROMPT_REVIEW
-from reviewdesk.contracts import (
+from secondread.agents.structure.prompts import SYSTEM_PROMPT_DESIGN_DOC, SYSTEM_PROMPT_REVIEW
+from secondread.contracts import (
     Agent,
     AgentName,
     AgentResult,
@@ -26,7 +26,7 @@ from reviewdesk.contracts import (
     RateLimitError,
     Severity,
 )
-from reviewdesk.testing.fakes import (
+from secondread.testing.fakes import (
     DESIGN_DOC,
     ESSAY_DOC,
     OPINION_DOC,

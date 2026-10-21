@@ -1,7 +1,7 @@
 import pytest
 from pydantic import TypeAdapter, ValidationError
 
-from reviewdesk.contracts import (
+from secondread.contracts import (
     PROFILE_AGENTS,
     AddClaim,
     AddRebuttal,
@@ -27,7 +27,7 @@ from reviewdesk.contracts import (
     Usage,
     Verdict,
 )
-from reviewdesk.testing.fakes import OPINION_DOC, sample_documents, sample_ledger, sample_report
+from secondread.testing.fakes import OPINION_DOC, sample_documents, sample_ledger, sample_report
 
 
 def test_document_from_text_counts_words():

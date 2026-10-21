@@ -1,7 +1,7 @@
 import pytest
 
-from reviewdesk.contracts import MissingSetup
-from reviewdesk.providers.search import (
+from secondread.contracts import MissingSetup
+from secondread.providers.search import (
     PROVIDERS,
     BraveSearch,
     ExaSearch,
@@ -9,7 +9,7 @@ from reviewdesk.providers.search import (
     make_search_client,
     search_clients_from_env,
 )
-from reviewdesk.providers.search.retry import parse_retry_after
+from secondread.providers.search.retry import parse_retry_after
 
 
 def test_env_var_names():

@@ -4,8 +4,8 @@ from collections.abc import Callable
 import httpx
 import pytest
 
-from reviewdesk.contracts import AuthError, ProviderError, RateLimitError, SearchClient
-from reviewdesk.providers.search import (
+from secondread.contracts import AuthError, ProviderError, RateLimitError, SearchClient
+from secondread.providers.search import (
     BraveSearch,
     ExaSearch,
     HttpSearchClient,

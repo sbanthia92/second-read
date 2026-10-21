@@ -20,7 +20,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
-from reviewdesk.contracts import Document, Profile, Severity, Span, Verdict
+from secondread.contracts import Document, Profile, Severity, Span, Verdict
 
 DATA_DIR = Path(__file__).parent / "data"
 """Default dataset directory."""

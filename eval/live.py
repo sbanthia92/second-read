@@ -7,7 +7,7 @@ Usage::
 
 ``make_llm`` returns the configured LLM client (for the baseline and the
 judge); ``full`` is the real ``run_review`` on agents and providers built by
-``reviewdesk.registry.build_registry_from_env``. Variables already set in the
+``secondread.registry.build_registry_from_env``. Variables already set in the
 environment win over ``.env``. Keys are never printed.
 """
 
@@ -16,11 +16,11 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from reviewdesk.cli.envfile import load_env_file
-from reviewdesk.contracts import Document, LLMClient, Profile, ProgressCallback, Report
-from reviewdesk.orchestrator import AgentRegistry
-from reviewdesk.pipeline import run_review
-from reviewdesk.registry import build_registry_from_env
+from secondread.cli.envfile import load_env_file
+from secondread.contracts import Document, LLMClient, Profile, ProgressCallback, Report
+from secondread.orchestrator import AgentRegistry
+from secondread.pipeline import run_review
+from secondread.registry import build_registry_from_env
 
 ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
 

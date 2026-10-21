@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from reviewdesk.cli.envfile import merge_env, parse_env
+from secondread.cli.envfile import merge_env, parse_env
 
 
 def test_parse_env_forms() -> None:

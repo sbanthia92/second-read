@@ -1,6 +1,6 @@
-# Review Desk
+# Second Read
 
-Review Desk reviews a draft the way a careful editor would, and shows its
+Second Read reviews a draft the way a careful editor would, and shows its
 sources. You give it an article, a blog post or a design doc. It returns one
 report:
 
@@ -52,10 +52,10 @@ list prices in October 2026) plus about 30 searches.
 ## Install: Claude Code
 
 ```sh
-claude mcp add review-desk \
+claude mcp add second-read \
   -e ANTHROPIC_API_KEY=your-key \
   -e TAVILY_API_KEY=your-key \
-  -- uvx --from git+https://github.com/sbanthia92/review-desk reviewdesk-mcp
+  -- uvx --from git+https://github.com/sbanthia92/second-read secondread-mcp
 ```
 
 Start Claude Code with a longer tool timeout, because a review takes minutes:
@@ -64,7 +64,7 @@ Start Claude Code with a longer tool timeout, because a review takes minutes:
 MCP_TOOL_TIMEOUT=600000 claude
 ```
 
-Then ask: "Use review-desk to review this draft", and paste the text or give a
+Then ask: "Use second-read to review this draft", and paste the text or give a
 public URL.
 
 ## Install: Claude Desktop
@@ -76,9 +76,9 @@ the app. If Claude Desktop cannot find `uvx`, use its full path (`which uvx`).
 ```json
 {
   "mcpServers": {
-    "review-desk": {
+    "second-read": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/sbanthia92/review-desk", "reviewdesk-mcp"],
+      "args": ["--from", "git+https://github.com/sbanthia92/second-read", "secondread-mcp"],
       "env": {
         "ANTHROPIC_API_KEY": "your-key",
         "TAVILY_API_KEY": "your-key"
@@ -89,15 +89,15 @@ the app. If Claude Desktop cannot find `uvx`, use its full path (`which uvx`).
 ```
 
 To try it without keys, replace the `env` block with
-`{"REVIEWDESK_FAKE": "1"}`. Demo mode returns placeholder findings and makes
+`{"SECONDREAD_FAKE": "1"}`. Demo mode returns placeholder findings and makes
 no model calls.
 
 ## Command line
 
 ```sh
-git clone https://github.com/sbanthia92/review-desk && cd review-desk
+git clone https://github.com/sbanthia92/second-read && cd second-read
 cp .env.example .env        # then put your keys in .env
-uv run reviewdesk review path/to/draft.md --profile opinion > report.md
+uv run secondread review path/to/draft.md --profile opinion > report.md
 ```
 
 Progress prints to the terminal; the report goes to `report.md`. Use
@@ -128,15 +128,15 @@ sources.
 
 Set these in the MCP client's `env` block, in the environment, or in a `.env`
 file (the server reads `.env` from its working directory, or the file named by
-`REVIEWDESK_ENV_FILE`).
+`SECONDREAD_ENV_FILE`).
 
 | Variable | Purpose |
 | --- | --- |
 | `ANTHROPIC_API_KEY` | Anthropic model key |
 | `TAVILY_API_KEY` | Web search key |
-| `REVIEWDESK_MODEL_CHEAP`, `_MID`, `_STRONG` | Override the model used for each tier |
-| `REVIEWDESK_MAX_WORDS` | Document size cap (default 20000) |
-| `REVIEWDESK_FAKE=1` | Demo mode: no keys, no model calls |
+| `SECONDREAD_MODEL_CHEAP`, `_MID`, `_STRONG` | Override the model used for each tier |
+| `SECONDREAD_MAX_WORDS` | Document size cap (default 20000) |
+| `SECONDREAD_FAKE=1` | Demo mode: no keys, no model calls |
 
 ## What leaves your machine
 
@@ -156,7 +156,7 @@ that cannot be caught from memory (recent results, exact figures), one run
 each, compared with asking the same model to "review this and argue the other
 side" in a single prompt.
 
-| | Single prompt | Review Desk |
+| | Single prompt | Second Read |
 | --- | --- | --- |
 | Planted wrong facts caught (19) | 7 | 13 |
 | ...with a cited source | 0 | 13 |
@@ -164,7 +164,7 @@ side" in a single prompt.
 | Borrowed sentences caught (3) | 3 | 1 |
 | Tokens per article | about 5,000 | about 136,000 |
 
-Review Desk earns its cost on claims that need looking up: recent events,
+Second Read earns its cost on claims that need looking up: recent events,
 exact figures, and details a model cannot know from memory. Every finding
 names its source, so you can check it in one click.
 

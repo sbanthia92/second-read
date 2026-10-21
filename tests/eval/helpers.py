@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from eval.dataset import SeededDocument
 from eval.items import ReportItem
-from reviewdesk.contracts import Document, Evidence, Span
-from reviewdesk.testing.fakes import FIXED_TIME
+from secondread.contracts import Document, Evidence, Span
+from secondread.testing.fakes import FIXED_TIME
 
 BORROWED = "It is not from the benevolence of the butcher that we expect our dinner."
 

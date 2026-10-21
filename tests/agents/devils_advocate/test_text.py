@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from reviewdesk.agents.devils_advocate.prompts import fence
-from reviewdesk.agents.devils_advocate.text import (
+from secondread.agents.devils_advocate.prompts import fence
+from secondread.agents.devils_advocate.text import (
     domain,
     find_in_page,
     keywords,

@@ -18,7 +18,7 @@ from typing import Protocol
 from pydantic import BaseModel, ConfigDict, Field
 
 from eval.items import ItemKind, ReportItem
-from reviewdesk.contracts import (
+from secondread.contracts import (
     Document,
     Evidence,
     Finding,

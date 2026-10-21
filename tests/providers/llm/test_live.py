@@ -9,8 +9,8 @@ import os
 
 import pytest
 
-from reviewdesk.contracts import AuthError, Message, ModelTier
-from reviewdesk.providers.llm import AnthropicLLM, OpenAILLM
+from secondread.contracts import AuthError, Message, ModelTier
+from secondread.providers.llm import AnthropicLLM, OpenAILLM
 from tests.providers.llm.schemas import Verdict
 
 pytestmark = pytest.mark.live

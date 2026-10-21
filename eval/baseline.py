@@ -28,7 +28,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from eval.judge import fence
 from eval.textspan import locate_quote
-from reviewdesk.contracts import (
+from secondread.contracts import (
     Claim,
     ClaimLedger,
     ClaimType,

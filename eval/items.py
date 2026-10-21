@@ -16,7 +16,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import StrEnum
 
-from reviewdesk.contracts import AgentName, Evidence, Finding, Rebuttal, Report, Severity, Span
+from secondread.contracts import AgentName, Evidence, Finding, Rebuttal, Report, Severity, Span
 
 
 class ItemKind(StrEnum):

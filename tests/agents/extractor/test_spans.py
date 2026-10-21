@@ -7,9 +7,9 @@ import re
 
 import pytest
 
-from reviewdesk.agents.extractor.chunks import split_into_chunks
-from reviewdesk.agents.extractor.spans import MatchMethod, TextLocator, normalize
-from reviewdesk.testing.fakes import REPORT_DOC, sample_documents
+from secondread.agents.extractor.chunks import split_into_chunks
+from secondread.agents.extractor.spans import MatchMethod, TextLocator, normalize
+from secondread.testing.fakes import REPORT_DOC, sample_documents
 
 
 def _only(locator: TextLocator, quote: str):

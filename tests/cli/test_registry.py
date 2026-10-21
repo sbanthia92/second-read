@@ -6,19 +6,19 @@ import logging
 
 import pytest
 
-from reviewdesk.agents.copyedit import CopyEditAgent
-from reviewdesk.agents.devils_advocate import DevilsAdvocateAgent
-from reviewdesk.agents.extractor import ExtractorAgent
-from reviewdesk.agents.factcheck import FactCheckAgent
-from reviewdesk.agents.originality import OriginalityAgent
-from reviewdesk.agents.structure import StructureAgent
-from reviewdesk.contracts import AgentName, MissingSetup, ModelTier
-from reviewdesk.mcp_local.wiring import load_registry_builder
-from reviewdesk.orchestrator import AgentRegistry
-from reviewdesk.providers.fetch import HttpFetcher
-from reviewdesk.providers.llm import AnthropicLLM, OpenAILLM
-from reviewdesk.providers.search import PROVIDERS, TavilySearch
-from reviewdesk.registry import (
+from secondread.agents.copyedit import CopyEditAgent
+from secondread.agents.devils_advocate import DevilsAdvocateAgent
+from secondread.agents.extractor import ExtractorAgent
+from secondread.agents.factcheck import FactCheckAgent
+from secondread.agents.originality import OriginalityAgent
+from secondread.agents.structure import StructureAgent
+from secondread.contracts import AgentName, MissingSetup, ModelTier
+from secondread.mcp_local.wiring import load_registry_builder
+from secondread.orchestrator import AgentRegistry
+from secondread.providers.fetch import HttpFetcher
+from secondread.providers.llm import AnthropicLLM, OpenAILLM
+from secondread.providers.search import PROVIDERS, TavilySearch
+from secondread.registry import (
     SEARCH_KEY_VARS,
     aclose_registry,
     build_registry,
@@ -26,7 +26,7 @@ from reviewdesk.registry import (
     default_agents,
     resolve_env_config,
 )
-from reviewdesk.testing.fakes import FakeFetcher, FakeLLM, FakeSearch
+from secondread.testing.fakes import FakeFetcher, FakeLLM, FakeSearch
 
 ANTHROPIC_KEY = "sk-ant-SECRET-anthropic-1234"
 OPENAI_KEY = "sk-SECRET-openai-5678"
@@ -91,8 +91,8 @@ async def test_explicit_provider_overrides() -> None:
         "ANTHROPIC_API_KEY": ANTHROPIC_KEY,
         "OPENAI_API_KEY": OPENAI_KEY,
         "TAVILY_API_KEY": TAVILY_KEY,
-        "REVIEWDESK_LLM_PROVIDER": " Anthropic ",
-        "REVIEWDESK_SEARCH_PROVIDER": " Tavily ",
+        "SECONDREAD_LLM_PROVIDER": " Anthropic ",
+        "SECONDREAD_SEARCH_PROVIDER": " Tavily ",
     }
     registry = await _build(env)
     try:
@@ -106,8 +106,8 @@ async def test_model_overrides() -> None:
     env = {
         "ANTHROPIC_API_KEY": ANTHROPIC_KEY,
         "TAVILY_API_KEY": TAVILY_KEY,
-        "REVIEWDESK_MODEL_CHEAP": "claude-tiny",
-        "REVIEWDESK_MODEL_STRONG": "claude-huge",
+        "SECONDREAD_MODEL_CHEAP": "claude-tiny",
+        "SECONDREAD_MODEL_STRONG": "claude-huge",
     }
     registry = await _build(env)
     try:
@@ -152,10 +152,10 @@ def test_unverified_search_providers_are_not_accepted() -> None:
         {
             "ANTHROPIC_API_KEY": ANTHROPIC_KEY,
             "EXA_API_KEY": EXA_KEY,
-            "REVIEWDESK_SEARCH_PROVIDER": "exa",
+            "SECONDREAD_SEARCH_PROVIDER": "exa",
         }
     )
-    assert "REVIEWDESK_SEARCH_PROVIDER must be one of: tavily" in message
+    assert "SECONDREAD_SEARCH_PROVIDER must be one of: tavily" in message
 
 
 def test_missing_llm_key_only() -> None:
@@ -175,16 +175,16 @@ def test_unverified_llm_provider_cannot_be_requested() -> None:
         {
             "ANTHROPIC_API_KEY": ANTHROPIC_KEY,
             "TAVILY_API_KEY": TAVILY_KEY,
-            "REVIEWDESK_LLM_PROVIDER": "openai",
+            "SECONDREAD_LLM_PROVIDER": "openai",
         }
     )
-    assert "REVIEWDESK_LLM_PROVIDER must be one of: anthropic" in message
+    assert "SECONDREAD_LLM_PROVIDER must be one of: anthropic" in message
 
 
 def test_requested_provider_without_its_key() -> None:
-    message = _missing({"TAVILY_API_KEY": TAVILY_KEY, "REVIEWDESK_LLM_PROVIDER": "anthropic"})
+    message = _missing({"TAVILY_API_KEY": TAVILY_KEY, "SECONDREAD_LLM_PROVIDER": "anthropic"})
     assert "ANTHROPIC_API_KEY" in message
-    assert "REVIEWDESK_LLM_PROVIDER" in message
+    assert "SECONDREAD_LLM_PROVIDER" in message
 
 
 def test_unknown_provider_names() -> None:
@@ -192,18 +192,18 @@ def test_unknown_provider_names() -> None:
         {
             "ANTHROPIC_API_KEY": ANTHROPIC_KEY,
             "TAVILY_API_KEY": TAVILY_KEY,
-            "REVIEWDESK_SEARCH_PROVIDER": "bing",
+            "SECONDREAD_SEARCH_PROVIDER": "bing",
         }
     )
-    assert "REVIEWDESK_SEARCH_PROVIDER" in message
+    assert "SECONDREAD_SEARCH_PROVIDER" in message
     assert "tavily" in message
 
 
 def test_reads_os_environ_by_default(monkeypatch: pytest.MonkeyPatch) -> None:
     for var in ["ANTHROPIC_API_KEY", "OPENAI_API_KEY", *SEARCH_KEY_VARS.values()]:
         monkeypatch.delenv(var, raising=False)
-    monkeypatch.delenv("REVIEWDESK_LLM_PROVIDER", raising=False)
-    monkeypatch.delenv("REVIEWDESK_SEARCH_PROVIDER", raising=False)
+    monkeypatch.delenv("SECONDREAD_LLM_PROVIDER", raising=False)
+    monkeypatch.delenv("SECONDREAD_SEARCH_PROVIDER", raising=False)
     with pytest.raises(MissingSetup):
         build_registry_from_env()
     monkeypatch.setenv("ANTHROPIC_API_KEY", ANTHROPIC_KEY)

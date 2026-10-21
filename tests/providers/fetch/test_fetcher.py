@@ -5,9 +5,9 @@ from collections.abc import AsyncIterator
 import httpx
 import pytest
 
-from reviewdesk.contracts import BlockedURLError, Fetcher, FetchError
-from reviewdesk.providers.fetch import HttpFetcher
-from reviewdesk.providers.search import RetryPolicy
+from secondread.contracts import BlockedURLError, Fetcher, FetchError
+from secondread.providers.fetch import HttpFetcher
+from secondread.providers.search import RetryPolicy
 
 PUBLIC = "93.184.216.34"
 HTML = "<html><head><title>T</title></head><body><p>Hello <b>world</b></p></body></html>"

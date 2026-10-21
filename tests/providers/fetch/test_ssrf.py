@@ -2,8 +2,8 @@ import ipaddress
 
 import pytest
 
-from reviewdesk.contracts import BlockedURLError, FetchError
-from reviewdesk.providers.fetch.ssrf import (
+from secondread.contracts import BlockedURLError, FetchError
+from secondread.providers.fetch.ssrf import (
     check_addresses,
     check_url,
     check_url_static,
