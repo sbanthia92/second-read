@@ -77,6 +77,10 @@ facts the document does not state, and keep every number exactly as written.
   - "supporting": an argumentative claim that backs or elaborates the thesis.
   - "factual": a checkable fact: a number, date, name, attribution, quotation \
 or event.
+  A sentence that argues a point but also states checkable facts ("Spain won \
+Euro 2008 and the 2010 World Cup by passing teams to death") is "factual": the \
+facts in it must be checked. Classify a sentence as "supporting" only when it \
+states no checkable fact.
 - "importance": a number from 0.0 (trivial) to 1.0 (the argument hinges on it).
 
 Extract each claim once. Skip headings, questions and pure style. Prefer the \
