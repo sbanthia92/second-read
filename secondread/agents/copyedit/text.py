@@ -272,3 +272,18 @@ def delimit(label: str, body: str, nonce: str) -> str:
     The random nonce stops text inside ``body`` from closing the block early.
     """
     return f"<<<BEGIN {label} {nonce}>>>\n{body}\n<<<END {label} {nonce}>>>"
+
+
+_QUOTED = re.compile(r'"[^"\n]{2,}"|“[^”\n]{2,}”')
+_BLOCK_QUOTE = re.compile(r"^[ \t]*>.*$", re.MULTILINE)
+
+
+def quoted_spans(text: str) -> list[Span]:
+    """Spans of quoted material: text in double quotation marks, and block quotes.
+
+    Quotations are someone else's words, so the copy editor leaves them alone.
+    Single quotes are ignored (they are usually apostrophes).
+    """
+    spans = [Span(start=m.start(), end=m.end()) for m in _QUOTED.finditer(text)]
+    spans += [Span(start=m.start(), end=m.end()) for m in _BLOCK_QUOTE.finditer(text)]
+    return sorted(spans, key=lambda s: s.start)

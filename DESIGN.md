@@ -127,6 +127,7 @@ The fact-checker and devil's advocate run a bounded loop per claim instead of a 
 **Conflict resolution rules (guardrails, applied after the reaction round)**
 
 - Copy edit touches a span flagged wrong or unsupported → drop the copy edit; the fact finding wins.
+- Copy edit touches a sentence the originality check flagged as borrowed, or text inside a quotation → drop the copy edit; quoted and borrowed words are not the author's to polish.
 - Devil's advocate attacks a claim the fact-checker verified → keep the rebuttal only if it targets the interpretation, not the fact; otherwise discard.
 - Two agents flag the same span → merge into one finding with both reasons.
 - Rebuttal with no retrieved source → downgrade to "consider" severity.

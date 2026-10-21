@@ -23,7 +23,7 @@ from secondread.agents.copyedit.prompts import (
     ProposedEdit,
     build_messages,
 )
-from secondread.agents.copyedit.text import Chunk, TextLocator, split_into_chunks
+from secondread.agents.copyedit.text import Chunk, TextLocator, quoted_spans, split_into_chunks
 from secondread.contracts.errors import BudgetExceeded, ProviderError
 from secondread.contracts.interfaces import LLMResponse, ModelTier, ReviewContext
 from secondread.contracts.models import (
@@ -68,6 +68,7 @@ class EditOutcome:
     no_ops: int = 0
     oversized: int = 0
     overlapping: int = 0
+    quoted: int = 0
     truncated: int = 0
     usage: Usage = field(default_factory=Usage)
     error: str | None = None
@@ -86,6 +87,8 @@ class EditOutcome:
             notes.append(f"{self.oversized} copy edit(s) too large for a line edit were dropped")
         if self.overlapping:
             notes.append(f"{self.overlapping} overlapping copy edit(s) were dropped")
+        if self.quoted:
+            notes.append(f"{self.quoted} copy edit(s) inside quotations were dropped")
         if self.truncated:
             notes.append(f"{self.truncated} copy edit(s) omitted over the cap")
         return notes
@@ -146,6 +149,7 @@ class CopyEditAgent:
         outcome = EditOutcome()
         chunks = [c for c in split_into_chunks(doc.text, self.max_chunk_chars) if c.text.strip()]
         taken: list[Span] = []
+        quotations = quoted_spans(doc.text)
         for i, chunk in enumerate(chunks, start=1):
             if len(chunks) > 1:
                 self._emit(
@@ -168,7 +172,7 @@ class CopyEditAgent:
                 continue
             locator = TextLocator(chunk.text)
             for item in parsed.edits:
-                finding = self._to_finding(ctx, item, chunk, locator, taken, outcome)
+                finding = self._to_finding(ctx, item, chunk, locator, taken, outcome, quotations)
                 if finding is not None:
                     outcome.findings.append(finding)
 
@@ -209,6 +213,7 @@ class CopyEditAgent:
         locator: TextLocator,
         taken: list[Span],
         outcome: EditOutcome,
+        quotations: list[Span],
     ) -> Finding | None:
         quote = item.quote.strip()
         if len(quote) > MAX_QUOTE_CHARS or len(item.suggestion) > 2 * MAX_QUOTE_CHARS:
@@ -225,6 +230,10 @@ class CopyEditAgent:
         span = next((s for s in spans if not any(s.overlaps(t) for t in taken)), None)
         if span is None:
             outcome.overlapping += 1
+            return None
+        if any(q.overlaps(span) for q in quotations):
+            # Quoted words are someone else's: never edit them.
+            outcome.quoted += 1
             return None
         original = span.text_of(ctx.document.text)
         suggestion = item.suggestion.strip()
