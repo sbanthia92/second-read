@@ -1,4 +1,4 @@
-"""Text helpers shared by the copy editor and structure reviewer (T6).
+"""Text helpers shared by the copy editor and structure reviewer.
 
 - ``TextLocator``: finds an LLM-quoted passage in the original text and returns
   spans into it (models are unreliable at offsets, so agents ask for verbatim

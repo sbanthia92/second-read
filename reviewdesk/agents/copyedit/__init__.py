@@ -1,4 +1,4 @@
-"""Copy editor agent (T6).
+"""Copy editor agent.
 
 Line-level grammar, clarity and concision suggestions, each a
 ``Severity.STYLE`` finding with a span into the document and a suggestion.

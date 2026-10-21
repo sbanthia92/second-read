@@ -1,4 +1,4 @@
-"""Originality checker agent (T7).
+"""Originality checker agent.
 
 Samples distinctive sentences, searches for near-matches and reports possible
 matches with URLs. Every finding is heuristic (``Finding.heuristic``) with

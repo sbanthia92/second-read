@@ -1,4 +1,4 @@
-"""Fake-backed tests for the fact-checker agent (T4)."""
+"""Fake-backed tests for the fact-checker agent."""
 
 from __future__ import annotations
 

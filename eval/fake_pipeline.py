@@ -1,6 +1,6 @@
 """``FakeAgent``-based pipelines, so the harness runs end to end offline.
 
-The real orchestrator (``reviewdesk.pipeline.run_review``, T10) is not part of
+The real orchestrator (``reviewdesk.pipeline.run_review``) is not part of
 this package. ``FakeAgentPipeline`` is a small stand-in with the same
 ``ReviewPipeline`` shape: it runs a list of agents (usually ``FakeAgent``s)
 over one ``ReviewContext``, applies their results to a ledger in list order,

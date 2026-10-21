@@ -1,4 +1,4 @@
-"""The devil's advocate agent (T5).
+"""The devil's advocate agent.
 
 Builds the strongest opposing case against the thesis and supporting claims
 from retrieved counter-evidence.

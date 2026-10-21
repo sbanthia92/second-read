@@ -1,7 +1,7 @@
 """Pipeline entry point: ``run_review`` (implements ``ReviewPipeline``).
 
 The pipeline composes agents from an ``AgentRegistry``. Pass one explicitly,
-or install a process-wide default once at startup (T11's wiring does this)::
+or install a process-wide default once at startup (the wiring does this)::
 
     from reviewdesk.pipeline import run_review, set_default_registry
     set_default_registry(registry)

@@ -1,4 +1,4 @@
-"""Seeded-error evaluation set and harness (T9).
+"""Seeded-error evaluation set and harness.
 
 - ``eval.dataset``: seeded documents with answer keys, and the loader.
 - ``eval.metrics``: scoring one ``Report`` against its answer key.
