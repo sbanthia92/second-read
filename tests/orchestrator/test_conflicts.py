@@ -515,3 +515,47 @@ def test_resolve_conflicts_on_sample_ledger() -> None:
     assert {"rebuttal_findings", "rebuttal_vs_verified", "copy_edit_vs_fact"} <= rules
     again = resolve_conflicts(out)
     assert again.ledger == out, "resolution is idempotent"
+
+
+def test_copy_edit_on_a_borrowed_sentence_is_dropped() -> None:
+    from secondread.contracts import AgentName, ClaimLedger, Finding, Severity, Span
+    from secondread.orchestrator.conflicts import (
+        drop_copy_edits_on_borrowed_spans,
+        resolve_conflicts,
+    )
+
+    ledger = ClaimLedger()
+    borrowed = Span(start=10, end=60)
+    ledger.add_finding(
+        Finding(
+            id="orig",
+            agent=AgentName.ORIGINALITY,
+            severity=Severity.CONSIDER,
+            span=borrowed,
+            message="match",
+            heuristic=True,
+        )
+    )
+    ledger.add_finding(
+        Finding(
+            id="edit_in",
+            agent=AgentName.COPYEDIT,
+            severity=Severity.STYLE,
+            span=Span(start=20, end=30),
+            message="x",
+        )
+    )
+    ledger.add_finding(
+        Finding(
+            id="edit_out",
+            agent=AgentName.COPYEDIT,
+            severity=Severity.STYLE,
+            span=Span(start=70, end=80),
+            message="y",
+        )
+    )
+    result = drop_copy_edits_on_borrowed_spans(ledger)
+    assert set(result.ledger.findings) == {"orig", "edit_out"}
+    assert [d.rule for d in result.decisions] == ["copy_edit_vs_originality"]
+    assert set(ledger.findings) == {"orig", "edit_in", "edit_out"}  # input untouched
+    assert "edit_in" not in resolve_conflicts(ledger).ledger.findings

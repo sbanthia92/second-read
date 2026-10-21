@@ -166,6 +166,36 @@ def drop_copy_edits_on_flagged_spans(ledger: ClaimLedger) -> Resolution:
     return Resolution(out, decisions)
 
 
+def drop_copy_edits_on_borrowed_spans(ledger: ClaimLedger) -> Resolution:
+    """Drop copy edits on a span the originality check flagged as borrowed.
+
+    A borrowed sentence needs attribution or rewriting by the author, not
+    polishing: an edit to someone else's words is never the right fix.
+    """
+    out = ledger.model_copy(deep=True)
+    borrowed = [
+        f.span
+        for f in out.findings.values()
+        if f.span is not None and (f.heuristic or f.agent == AgentName.ORIGINALITY)
+    ]
+    decisions: list[Decision] = []
+    for finding in list(out.findings.values()):
+        if finding.agent != AgentName.COPYEDIT or finding.span is None:
+            continue
+        span = finding.span
+        if any(span.overlaps(b) for b in borrowed):
+            out.remove_finding(finding.id)
+            decisions.append(
+                Decision(
+                    "copy_edit_vs_originality",
+                    "dropped",
+                    (finding.id,),
+                    "copy edit touches a sentence flagged as possibly borrowed",
+                )
+            )
+    return Resolution(out, decisions)
+
+
 # ---------------------------------------------------------------------------
 # Rule 2: rebuttal vs verified claim
 # ---------------------------------------------------------------------------
@@ -387,7 +417,8 @@ def resolve_conflicts(ledger: ClaimLedger) -> Resolution:
     """Apply every guardrail in order and return the resolved ledger.
 
     Order: ensure rebuttal findings, rule 2 (verified claims), rule 4
-    (downgrade), rule 1 (copy edits), rule 3 (merge). Findings in the result
+    (downgrade), rule 1 (copy edits), copy edits on borrowed sentences, rule 3
+    (merge). Findings in the result
     are stored in rank order (rule 5).
     """
     decisions: list[Decision] = []
@@ -397,6 +428,7 @@ def resolve_conflicts(ledger: ClaimLedger) -> Resolution:
         discard_fact_rebuttals_on_verified,
         downgrade_unsourced_rebuttals,
         drop_copy_edits_on_flagged_spans,
+        drop_copy_edits_on_borrowed_spans,
         merge_same_span_findings,
     ):
         step = rule(current)
