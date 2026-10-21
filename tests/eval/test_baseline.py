@@ -12,8 +12,8 @@ from eval.baseline import (
 )
 from eval.items import report_items
 from eval.metrics import score_report
-from reviewdesk.contracts import ModelTier, Profile, RebuttalTarget, Severity
-from reviewdesk.testing.fakes import FakeLLM, ProgressRecorder
+from secondread.contracts import ModelTier, Profile, RebuttalTarget, Severity
+from secondread.testing.fakes import FakeLLM, ProgressRecorder
 from tests.eval.helpers import TEXT, span, tiny_seeded
 
 REVIEW = BaselineReview(

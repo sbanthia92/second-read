@@ -6,7 +6,7 @@ import re
 
 import pytest
 
-from reviewdesk.contracts import (
+from secondread.contracts import (
     AgentName,
     Claim,
     ClaimLedger,
@@ -21,7 +21,7 @@ from reviewdesk.contracts import (
     Span,
     Usage,
 )
-from reviewdesk.report import (
+from secondread.report import (
     EMPTY_SECTION,
     build_view,
     email_subject,
@@ -31,9 +31,9 @@ from reviewdesk.report import (
     render_text,
     safe_url,
 )
-from reviewdesk.report.markdown import md
-from reviewdesk.report.view import MAX_QUOTE_CHARS, clean, one_line
-from reviewdesk.testing.fakes import (
+from secondread.report.markdown import md
+from secondread.report.view import MAX_QUOTE_CHARS, clean, one_line
+from secondread.testing.fakes import (
     FIXED_TIME,
     OPINION_DOC,
     SHORT_DOC,
@@ -342,10 +342,10 @@ def test_email_subject_is_single_line_and_capped() -> None:
     report, doc = _hostile_report()
     email = render_email(report, doc)
     assert "\r" not in email.subject and "\n" not in email.subject
-    assert email.subject.startswith("Review Desk report: Not ready Bcc:")
+    assert email.subject.startswith("Second Read report: Not ready Bcc:")
     long = empty_report().model_copy(update={"verdict_line": "x" * 500})
     assert len(email_subject(long)) == 120
-    assert email_subject(empty_report()) == "Review Desk report: Ready: no issues found."
+    assert email_subject(empty_report()) == "Second Read report: Ready: no issues found."
 
 
 def test_control_characters_are_stripped() -> None:

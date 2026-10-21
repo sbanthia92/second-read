@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 from mcp import Client
 
-from reviewdesk.contracts import (
+from secondread.contracts import (
     AuthError,
     BlockedURLError,
     FetchedPage,
@@ -15,9 +15,9 @@ from reviewdesk.contracts import (
     ProviderError,
     RateLimitError,
 )
-from reviewdesk.mcp_local import TOOL_NAME, create_server
-from reviewdesk.report import render_markdown
-from reviewdesk.testing.fakes import OPINION_DOC, FakeFetcher, empty_report
+from secondread.mcp_local import TOOL_NAME, create_server
+from secondread.report import render_markdown
+from secondread.testing.fakes import OPINION_DOC, FakeFetcher, empty_report
 from tests.mcp_local.helpers import ProgressLog, RecordingPipeline, call, text_of
 
 SECRET_TEXT = "ZEBRA-QUOKKA-7741 confidential paragraph"
@@ -55,7 +55,7 @@ async def test_content_returns_markdown_report(mode: str) -> None:
     assert seen.profile is Profile.AUTO
     assert seen.focus is None
     assert text_of(result) == render_markdown(pipeline.returned[0], seen.doc)
-    assert text_of(result).startswith("# Review Desk report")
+    assert text_of(result).startswith("# Second Read report")
 
 
 async def test_report_for_another_document_renders_without_quoting_it() -> None:
@@ -271,7 +271,7 @@ async def test_missing_setup_mentions_search_key_and_fake_mode() -> None:
     )
     message = text_of(await call(server, {"content": OPINION_DOC.text}))
     assert "TAVILY_API_KEY" in message
-    assert "REVIEWDESK_FAKE=1" in message
+    assert "SECONDREAD_FAKE=1" in message
 
 
 async def test_unexpected_error_hides_its_message_and_the_document() -> None:
@@ -343,4 +343,4 @@ async def test_without_a_progress_token_the_review_still_completes() -> None:
     server = create_server(pipeline=pipeline, fetcher=FakeFetcher())
     result = await call(server, {"content": OPINION_DOC.text}, progress=None)
     assert not result.is_error
-    assert text_of(result).startswith("# Review Desk report")
+    assert text_of(result).startswith("# Second Read report")

@@ -4,20 +4,20 @@ from __future__ import annotations
 
 import pytest
 
-from reviewdesk.contracts import (
+from secondread.contracts import (
     PROFILE_AGENTS,
     AgentName,
     Budget,
     Profile,
 )
-from reviewdesk.orchestrator.planning import (
+from secondread.orchestrator.planning import (
     default_plan,
     plan_totals,
     split_budget,
     validate_plan,
 )
-from reviewdesk.orchestrator.schemas import PlanClaimBudget, PlanReply
-from reviewdesk.testing.fakes import OPINION_DOC, REPORT_DOC, sample_ledger
+from secondread.orchestrator.schemas import PlanClaimBudget, PlanReply
+from secondread.testing.fakes import OPINION_DOC, REPORT_DOC, sample_ledger
 from tests.orchestrator.builders import bare_ledger
 
 ALL = [a.value for a in AgentName]
@@ -51,8 +51,8 @@ def test_default_plan_deep_research_and_budgets_within_job() -> None:
 
 
 def test_number_heavy_text_gets_more_fact_check_depth() -> None:
-    from reviewdesk.contracts import ClaimLedger, ClaimType
-    from reviewdesk.testing.fakes import claim_for
+    from secondread.contracts import ClaimLedger, ClaimType
+    from secondread.testing.fakes import claim_for
 
     ledger = ClaimLedger()
     ledger.add_claim(

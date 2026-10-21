@@ -19,7 +19,7 @@ from eval.dataset import (
     load_dataset,
     load_document,
 )
-from reviewdesk.contracts import Profile, Severity, Span, Verdict
+from secondread.contracts import Profile, Severity, Span, Verdict
 from tests.eval.helpers import TEXT, tiny_seeded
 
 FACT_TYPES = (DefectType.WRONG_FACT, DefectType.UNSUPPORTED)

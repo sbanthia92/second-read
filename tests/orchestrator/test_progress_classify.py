@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from reviewdesk.contracts import Profile, ProgressEvent, ProgressStep, ProviderError
-from reviewdesk.orchestrator.classify import classify, heuristic_profile
-from reviewdesk.orchestrator.progress import STEP_RANGES, ProgressTracker
-from reviewdesk.testing.fakes import (
+from secondread.contracts import Profile, ProgressEvent, ProgressStep, ProviderError
+from secondread.orchestrator.classify import classify, heuristic_profile
+from secondread.orchestrator.progress import STEP_RANGES, ProgressTracker
+from secondread.testing.fakes import (
     DESIGN_DOC,
     ESSAY_DOC,
     OPINION_DOC,

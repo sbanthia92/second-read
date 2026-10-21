@@ -8,8 +8,8 @@ from typing import Any
 
 import pytest
 
-from reviewdesk import pipeline
-from reviewdesk.contracts import (
+from secondread import pipeline
+from secondread.contracts import (
     AddClaim,
     AddRebuttal,
     AgentName,
@@ -31,8 +31,8 @@ from reviewdesk.contracts import (
     Severity,
     Verdict,
 )
-from reviewdesk.orchestrator import STEP_ORDER, AgentRegistry, Orchestrator
-from reviewdesk.testing.fakes import (
+from secondread.orchestrator import STEP_ORDER, AgentRegistry, Orchestrator
+from secondread.testing.fakes import (
     DESIGN_DOC,
     OPINION_DOC,
     FakeAgent,

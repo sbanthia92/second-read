@@ -12,7 +12,7 @@ Pipelines (``-p``, repeatable) are either built-in names or import specs:
   ``FakeAgent`` pipelines (see ``eval.fake_pipeline``).
 - ``baseline``: the single-prompt reviewer; needs ``--llm``.
 - ``NAME=module:attr`` or ``module:attr``: any ``ReviewPipeline`` callable,
-  e.g. ``full=reviewdesk.pipeline:run_review``.
+  e.g. ``full=secondread.pipeline:run_review``.
 
 ``--llm module:attr`` names a zero-argument callable returning an
 ``LLMClient`` (reads its own key from the environment). It powers the baseline
@@ -35,7 +35,7 @@ from eval.fake_pipeline import builtin_pipelines
 from eval.harness import RESULTS_DIR, run_eval, save_results
 from eval.judge import LLMJudge
 from eval.metrics import DocScore
-from reviewdesk.contracts import LLMClient, ReviewPipeline, utcnow
+from secondread.contracts import LLMClient, ReviewPipeline, utcnow
 
 
 class CLIError(Exception):
@@ -168,7 +168,7 @@ def cmd_run(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="python -m eval", description="Review Desk eval")
+    parser = argparse.ArgumentParser(prog="python -m eval", description="Second Read eval")
     parser.add_argument("--data", type=Path, default=None, help="dataset directory")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("validate", help="validate the dataset").set_defaults(func=cmd_validate)

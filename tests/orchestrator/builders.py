@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 
-from reviewdesk.contracts import (
+from secondread.contracts import (
     AgentName,
     ClaimLedger,
     Evidence,
@@ -15,7 +15,7 @@ from reviewdesk.contracts import (
     Span,
     Verdict,
 )
-from reviewdesk.testing.fakes import FIXED_TIME, OPINION_DOC, sample_ledger, span_of
+from secondread.testing.fakes import FIXED_TIME, OPINION_DOC, sample_ledger, span_of
 
 DOC = OPINION_DOC
 

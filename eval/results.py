@@ -18,7 +18,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from eval.dataset import RECALL_TYPES, DefectType
 from eval.metrics import ConflictStatus, DocScore
-from reviewdesk.contracts import utcnow
+from secondread.contracts import utcnow
 
 RATIO = "ratio"
 SCORE = "score"

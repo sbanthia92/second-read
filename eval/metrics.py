@@ -40,7 +40,7 @@ from eval.items import (
     report_items,
 )
 from eval.judge import EvalJudge
-from reviewdesk.contracts import (
+from secondread.contracts import (
     Evidence,
     Rebuttal,
     RebuttalTarget,

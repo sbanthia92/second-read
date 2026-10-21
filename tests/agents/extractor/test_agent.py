@@ -6,9 +6,9 @@ from typing import Any
 
 import pytest
 
-from reviewdesk.agents.extractor import TAG_EXTRACT, ExtractionOutput, ExtractorAgent
-from reviewdesk.agents.extractor.prompts import SYSTEM_PROMPT
-from reviewdesk.contracts import (
+from secondread.agents.extractor import TAG_EXTRACT, ExtractionOutput, ExtractorAgent
+from secondread.agents.extractor.prompts import SYSTEM_PROMPT
+from secondread.contracts import (
     AddClaim,
     Agent,
     AgentName,
@@ -23,7 +23,7 @@ from reviewdesk.contracts import (
     ProgressStep,
     RateLimitError,
 )
-from reviewdesk.testing.fakes import (
+from secondread.testing.fakes import (
     DESIGN_DOC,
     ESSAY_DOC,
     OPINION_DOC,

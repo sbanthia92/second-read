@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from reviewdesk.mcp_local.main import load_env
+from secondread.mcp_local.main import load_env
 
 
 def test_env_file_fills_unset_variables_only(tmp_path: Path):
@@ -16,7 +16,7 @@ def test_env_file_fills_unset_variables_only(tmp_path: Path):
 def test_named_env_file_and_missing_file(tmp_path: Path):
     other = tmp_path / "keys.env"
     other.write_text("EXA_API_KEY=e\n")
-    env = {"REVIEWDESK_ENV_FILE": str(other)}
+    env = {"SECONDREAD_ENV_FILE": str(other)}
     assert load_env(env, cwd=tmp_path) == other
     assert env["EXA_API_KEY"] == "e"
     assert load_env({}, cwd=tmp_path) is None  # no .env here: ignored

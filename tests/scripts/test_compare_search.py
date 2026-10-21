@@ -2,9 +2,6 @@ from datetime import UTC, datetime
 
 import httpx
 
-from reviewdesk.contracts import RateLimitError, SearchResult
-from reviewdesk.providers.search.config import search_clients_from_env
-from reviewdesk.testing.fakes import FakeSearch
 from scripts import compare_search
 from scripts.compare_search import (
     QUERIES,
@@ -15,6 +12,9 @@ from scripts.compare_search import (
     render_markdown,
     run_comparison,
 )
+from secondread.contracts import RateLimitError, SearchResult
+from secondread.providers.search.config import search_clients_from_env
+from secondread.testing.fakes import FakeSearch
 
 
 def hits(prefix: str, n: int = 3) -> list[SearchResult]:

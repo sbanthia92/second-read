@@ -1,6 +1,6 @@
-from reviewdesk.agents.extractor import ExtractorAgent
-from reviewdesk.contracts import AddClaim
-from reviewdesk.testing.fakes import REPORT_DOC, FakeLLM, make_context
+from secondread.agents.extractor import ExtractorAgent
+from secondread.contracts import AddClaim
+from secondread.testing.fakes import REPORT_DOC, FakeLLM, make_context
 
 
 async def test_standalone_restatement_is_kept_and_cleaned():

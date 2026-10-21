@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import anyio.lowlevel
 
-from reviewdesk.contracts import ProgressEvent
-from reviewdesk.mcp_local.progress import ProgressBridge
+from secondread.contracts import ProgressEvent
+from secondread.mcp_local.progress import ProgressBridge
 
 
 def event(message: str, percent: float) -> ProgressEvent:

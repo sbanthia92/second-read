@@ -1,24 +1,24 @@
 # Architecture: shared contracts
 
-The shared types every part of Review Desk codes against. `DESIGN.md` is the
+The shared types every part of Second Read codes against. `DESIGN.md` is the
 source of truth for behavior; this file explains the types.
 
 ## Layout
 
 | Path | What |
 | --- | --- |
-| `reviewdesk/contracts/models.py` | Pydantic v2 data models |
-| `reviewdesk/contracts/interfaces.py` | Protocols, `ReviewContext`, `BudgetMeter` |
-| `reviewdesk/contracts/errors.py` | Exception hierarchy |
-| `reviewdesk/testing/fakes.py` | Fakes for every protocol, `make_context` |
-| `reviewdesk/testing/samples.py` | Sample documents, ledger, reports |
-| `reviewdesk/providers/{llm,search,fetch}/` | Provider adapters |
-| `reviewdesk/agents/<name>/` | One package per agent |
-| `reviewdesk/report/` | Markdown and HTML rendering |
+| `secondread/contracts/models.py` | Pydantic v2 data models |
+| `secondread/contracts/interfaces.py` | Protocols, `ReviewContext`, `BudgetMeter` |
+| `secondread/contracts/errors.py` | Exception hierarchy |
+| `secondread/testing/fakes.py` | Fakes for every protocol, `make_context` |
+| `secondread/testing/samples.py` | Sample documents, ledger, reports |
+| `secondread/providers/{llm,search,fetch}/` | Provider adapters |
+| `secondread/agents/<name>/` | One package per agent |
+| `secondread/report/` | Markdown and HTML rendering |
 | `eval/` | Eval harness and dataset |
-| `reviewdesk/orchestrator/`, `reviewdesk/pipeline.py` | Planning, conflict rules, `run_review` |
-| `reviewdesk/cli/`, `reviewdesk/registry.py` | Real wiring and CLI |
-| `reviewdesk/mcp_local/` | stdio MCP server |
+| `secondread/orchestrator/`, `secondread/pipeline.py` | Planning, conflict rules, `run_review` |
+| `secondread/cli/`, `secondread/registry.py` | Real wiring and CLI |
+| `secondread/mcp_local/` | stdio MCP server |
 
 Tests mirror the package path under `tests/` (e.g. `tests/agents/extractor/`).
 
@@ -34,7 +34,7 @@ Document ──► extractor ──► ClaimLedger ──► plan ──► agen
                                       Report ──► markdown / HTML
 ```
 
-## Models (`reviewdesk.contracts`)
+## Models (`secondread.contracts`)
 
 - **`Document`**: `id`, `text`, `source_url`, `word_count`. Build with
   `Document.from_text(text)`.
@@ -91,7 +91,7 @@ Document ──► extractor ──► ClaimLedger ──► plan ──► agen
   counter_case (rebuttals), should_fix, polish, originality, ledger, usage,
   notes (degradation notices), generated_at.
 
-## Protocols (`reviewdesk.contracts.interfaces`)
+## Protocols (`secondread.contracts.interfaces`)
 
 - **`LLMClient.complete(messages, *, schema=None, model_tier, tag="",
   max_tokens=None, temperature=None) -> LLMResponse`**. `ModelTier`: cheap,
@@ -112,16 +112,16 @@ Document ──► extractor ──► ClaimLedger ──► plan ──► agen
   `meter` (a `BudgetMeter` built from `budget`). Agents `charge` the meter for
   every LLM/search/fetch call and stop gracefully when it is exhausted.
 - **`ReviewPipeline`**: `(doc, profile, on_progress) -> Awaitable[Report]`,
-  implemented by `reviewdesk.pipeline.run_review`.
+  implemented by `secondread.pipeline.run_review`.
 
-## Errors (`reviewdesk.contracts.errors`)
+## Errors (`secondread.contracts.errors`)
 
-`ReviewDeskError` ← `ProviderError(retryable)` ← `AuthError`,
+`SecondReadError` ← `ProviderError(retryable)` ← `AuthError`,
 `RateLimitError`, `SchemaError`; `FetchError` ← `BlockedURLError`;
 `BudgetExceeded`; `DocumentTooLong`; `MissingSetup`. Messages must never
 contain API keys or document text.
 
-## Fakes (`reviewdesk.testing.fakes`)
+## Fakes (`secondread.testing.fakes`)
 
 - `FakeLLM(script, default=...)`: replies keyed by tag (exact, then dotted
   prefix, then default); list values are queues; replies may be text, dicts,

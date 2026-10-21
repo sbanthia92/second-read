@@ -8,11 +8,11 @@ from pathlib import Path
 
 import pytest
 
-from reviewdesk.cli import run
-from reviewdesk.cli.envfile import load_env_file, merge_env
-from reviewdesk.contracts import MissingSetup, Report
-from reviewdesk.registry import resolve_env_config
-from reviewdesk.testing.fakes import SHORT_DOC
+from secondread.cli import run
+from secondread.cli.envfile import load_env_file, merge_env
+from secondread.contracts import MissingSetup, Report
+from secondread.registry import resolve_env_config
+from secondread.testing.fakes import SHORT_DOC
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 

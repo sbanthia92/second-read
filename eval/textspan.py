@@ -8,7 +8,7 @@ original.
 
 from __future__ import annotations
 
-from reviewdesk.contracts import Span
+from secondread.contracts import Span
 
 _CHAR_MAP = {
     "‘": "'",

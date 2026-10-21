@@ -1,4 +1,4 @@
-# Review Desk eval
+# Second Read eval
 
 Seeded-error evaluation set and harness (see "Evaluation" in `DESIGN.md`).
 
@@ -6,7 +6,7 @@ Seeded-error evaluation set and harness (see "Evaluation" in `DESIGN.md`).
 uv run python -m eval validate                     # check every answer-key span
 uv run python -m eval list                         # documents and defect counts
 uv run python -m eval run -p oracle -p noisy --repeats 3
-uv run python -m eval run -p baseline -p full=reviewdesk.pipeline:run_review \
+uv run python -m eval run -p baseline -p full=secondread.pipeline:run_review \
     --llm mypkg.llm:make_client --judge --repeats 3
 ```
 

@@ -12,7 +12,7 @@ from eval.metrics import (
     score_report,
     span_matches,
 )
-from reviewdesk.contracts import (
+from secondread.contracts import (
     AgentName,
     Claim,
     ClaimLedger,

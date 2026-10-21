@@ -24,7 +24,7 @@ from eval.dataset import SeededDocument
 from eval.judge import EvalJudge
 from eval.metrics import DocScore, score_report
 from eval.results import EvalResults
-from reviewdesk.contracts import Profile, ProgressEvent, Report, ReviewPipeline
+from secondread.contracts import Profile, ProgressEvent, Report, ReviewPipeline
 
 RESULTS_DIR = Path(__file__).parent / "results"
 """Where run outputs are written (gitignored)."""

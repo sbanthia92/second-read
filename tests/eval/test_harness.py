@@ -23,7 +23,7 @@ from eval.harness import run_eval, run_one, save_results
 from eval.judge import TAG_CITATION, TAG_REAL, TAG_REBUTTAL, LLMJudge
 from eval.metrics import ConflictStatus
 from eval.results import Stat, summarize
-from reviewdesk.contracts import (
+from secondread.contracts import (
     AddClaim,
     AgentName,
     Budget,
@@ -43,7 +43,7 @@ from reviewdesk.contracts import (
     Span,
     Usage,
 )
-from reviewdesk.testing.fakes import (
+from secondread.testing.fakes import (
     FakeAgent,
     FakeFetcher,
     FakeLLM,
@@ -412,7 +412,7 @@ async def test_fatal_provider_error_stops_the_run_and_keeps_scores(tmp_path: Pat
     import json
 
     from eval.harness import is_fatal, run_eval
-    from reviewdesk.contracts import AuthError, Report
+    from secondread.contracts import AuthError, Report
 
     dataset = load_dataset()[:4]
     calls: list[str] = []
@@ -453,7 +453,7 @@ async def test_source_metrics_and_missed_list() -> None:
     from eval.harness import run_eval
     from eval.metrics import NEEDS_SOURCE_TAG
     from eval.results import run_metrics
-    from reviewdesk.contracts import AgentName, Evidence, Finding, Report, Severity
+    from secondread.contracts import AgentName, Evidence, Finding, Report, Severity
 
     seeded = load_dataset()[0]
     wrong = seeded.of_type(DefectType.WRONG_FACT)[0]
@@ -489,7 +489,7 @@ async def test_source_metrics_and_missed_list() -> None:
 
 async def test_reports_are_saved_for_inspection(tmp_path: Path) -> None:
     from eval.harness import run_eval
-    from reviewdesk.contracts import Report
+    from secondread.contracts import Report
 
     dataset = load_dataset()[:2]
 
@@ -506,7 +506,7 @@ async def test_reports_are_saved_for_inspection(tmp_path: Path) -> None:
 async def test_finding_on_a_sentence_with_a_planted_error_is_not_a_false_alarm() -> None:
     from eval.dataset import ConflictRule
     from eval.harness import run_eval
-    from reviewdesk.contracts import AgentName, Finding, Report, Severity, Span
+    from secondread.contracts import AgentName, Finding, Report, Severity, Span
 
     seeded = next(d for d in load_dataset() if d.id.startswith("33"))
     true_half = next(

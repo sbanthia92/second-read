@@ -7,7 +7,7 @@ import logging
 import httpx2
 import pytest
 
-from reviewdesk.contracts import (
+from secondread.contracts import (
     AuthError,
     LLMClient,
     Message,
@@ -16,7 +16,7 @@ from reviewdesk.contracts import (
     RateLimitError,
     SchemaError,
 )
-from reviewdesk.providers.llm import OpenAILLM
+from secondread.providers.llm import OpenAILLM
 from tests.providers.llm.replay import FAKE_KEY, Replay, Sleeps, fast_retry
 from tests.providers.llm.schemas import Verdict
 

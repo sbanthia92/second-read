@@ -8,9 +8,9 @@ from typing import Any
 from mcp import Client
 from mcp.types import CallToolResult, TextContent
 
-from reviewdesk.contracts import Document, Profile, ProgressCallback, ProgressEvent, Report
-from reviewdesk.mcp_local import TOOL_NAME
-from reviewdesk.testing.fakes import sample_report
+from secondread.contracts import Document, Profile, ProgressCallback, ProgressEvent, Report
+from secondread.mcp_local import TOOL_NAME
+from secondread.testing.fakes import sample_report
 
 
 @dataclass

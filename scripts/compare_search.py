@@ -28,8 +28,8 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 
-from reviewdesk.contracts import ReviewDeskError, SearchClient, SearchResult
-from reviewdesk.providers.search.config import PROVIDERS, search_clients_from_env
+from secondread.contracts import SearchClient, SearchResult, SecondReadError
+from secondread.providers.search.config import PROVIDERS, search_clients_from_env
 
 QUERIES: tuple[str, ...] = (
     # Football / blog-style claims.
@@ -67,7 +67,7 @@ async def run_query(name: str, client: SearchClient, query: str, k: int) -> Cell
     started = time.perf_counter()
     try:
         results = await client.search(query, k=k)
-    except ReviewDeskError as exc:
+    except SecondReadError as exc:
         return Cell(query, name, seconds=time.perf_counter() - started, error=str(exc))
     return Cell(query, name, results=list(results), seconds=time.perf_counter() - started)
 
@@ -202,7 +202,7 @@ async def amain(
         only = [p.strip() for p in args.providers.split(",")] if args.providers else None
         try:
             built = search_clients_from_env(source, only=only)
-        except ReviewDeskError as exc:
+        except SecondReadError as exc:
             print(str(exc), file=sys.stderr)
             return 2
         owned.extend(built.values())

@@ -1,4 +1,4 @@
-"""``reviewdesk review`` end to end on fake-backed registries (offline)."""
+"""``secondread review`` end to end on fake-backed registries (offline)."""
 
 from __future__ import annotations
 
@@ -12,8 +12,8 @@ from typing import Any
 
 import pytest
 
-from reviewdesk.cli import run
-from reviewdesk.cli.errors import (
+from secondread.cli import run
+from secondread.cli.errors import (
     EXIT_AUTH,
     EXIT_FAILED,
     EXIT_FETCH,
@@ -24,7 +24,7 @@ from reviewdesk.cli.errors import (
     EXIT_TOO_LONG,
     EXIT_USAGE,
 )
-from reviewdesk.contracts import (
+from secondread.contracts import (
     AddClaim,
     AgentName,
     AuthError,
@@ -37,9 +37,9 @@ from reviewdesk.contracts import (
     ReviewContext,
     Severity,
 )
-from reviewdesk.orchestrator import AgentRegistry
-from reviewdesk.registry import build_registry
-from reviewdesk.testing.fakes import (
+from secondread.orchestrator import AgentRegistry
+from secondread.registry import build_registry
+from secondread.testing.fakes import (
     OPINION_DOC,
     FakeAgent,
     FakeFetcher,
@@ -70,7 +70,7 @@ class Harness:
         self.closed = 0
 
     def _copyedit(self, ctx: ReviewContext) -> Any:
-        from reviewdesk.contracts import AgentResult
+        from secondread.contracts import AgentResult
 
         self.contexts.append(ctx)
         return AgentResult(
@@ -138,7 +138,7 @@ def test_file_review_prints_markdown_and_progress(draft: Path) -> None:
     harness = Harness()
     code, out, err = cli(["review", str(draft), "--profile", "opinion"], harness)
     assert code == EXIT_OK, err
-    assert out.startswith("# Review Desk report")
+    assert out.startswith("# Second Read report")
     assert "Tighten this sentence." in out
     lines = _progress_lines(err)
     assert lines, err
@@ -146,7 +146,7 @@ def test_file_review_prints_markdown_and_progress(draft: Path) -> None:
     assert percents == sorted(percents)
     assert lines[-1].startswith("[100%] done")
     assert any("extracting claims (fake)" in line for line in lines)
-    assert "# Review Desk report" not in err
+    assert "# Second Read report" not in err
     assert harness.contexts[0].profile == Profile.OPINION
     assert harness.contexts[0].document.text == OPINION_DOC.text
     assert harness.closed == 1
@@ -173,7 +173,7 @@ def test_quiet_suppresses_progress(draft: Path) -> None:
     code, out, err = cli(["review", str(draft), "--quiet"], Harness())
     assert code == EXIT_OK
     assert err == ""
-    assert out.startswith("# Review Desk report")
+    assert out.startswith("# Second Read report")
 
 
 def test_focus_and_style_guide_reach_the_agents(draft: Path, tmp_path: Path) -> None:
@@ -205,7 +205,7 @@ def test_url_input_uses_the_registry_fetcher() -> None:
     assert harness.fetcher.fetched == [PAGE_URL]
     assert harness.contexts[0].document.source_url == PAGE_URL
     assert _progress_lines(err)[0].startswith("[  0%] fetching")
-    assert out.startswith("# Review Desk report")
+    assert out.startswith("# Second Read report")
 
 
 def test_blocked_url() -> None:
@@ -282,7 +282,7 @@ def test_document_too_long(tmp_path: Path) -> None:
 def test_word_cap_from_env_and_default(tmp_path: Path) -> None:
     path = tmp_path / "doc.md"
     path.write_text("word " * 30, encoding="utf-8")
-    code, _o, err = cli(["review", str(path)], Harness(), env={"REVIEWDESK_MAX_WORDS": "5"})
+    code, _o, err = cli(["review", str(path)], Harness(), env={"SECONDREAD_MAX_WORDS": "5"})
     assert code == EXIT_TOO_LONG, err
     code, _o, _e = cli(["review", str(path), "--quiet"], Harness())
     assert code == EXIT_OK
@@ -331,12 +331,12 @@ def test_auth_error_from_the_provider(draft: Path) -> None:
 
 
 def test_rate_limit(draft: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    import reviewdesk.pipeline
+    import secondread.pipeline
 
     async def limited(*args: Any, **kwargs: Any) -> Report:
         raise RateLimitError("brave: 429")
 
-    monkeypatch.setattr(reviewdesk.pipeline, "run_review", limited)
+    monkeypatch.setattr(secondread.pipeline, "run_review", limited)
     code, _out, err = cli(["review", str(draft)], Harness())
     assert code == EXIT_RATE_LIMIT
     assert "Rate limit exceeded" in err
@@ -354,7 +354,7 @@ def test_env_file_is_loaded_and_process_env_wins(draft: Path, tmp_path: Path) ->
     env_file = tmp_path / "custom.env"
     env_file.write_text(
         f"# keys\nexport ANTHROPIC_API_KEY='{SECRET}'\nBRAVE_SEARCH_API_KEY=from-file\n"
-        "REVIEWDESK_MAX_WORDS=100000 # big\n",
+        "SECONDREAD_MAX_WORDS=100000 # big\n",
         encoding="utf-8",
     )
     harness = Harness()
@@ -370,7 +370,7 @@ def test_env_file_is_loaded_and_process_env_wins(draft: Path, tmp_path: Path) ->
     env = harness.envs[0]
     assert env["ANTHROPIC_API_KEY"] == SECRET
     assert env["BRAVE_SEARCH_API_KEY"] == "from-process"
-    assert env["REVIEWDESK_MAX_WORDS"] == "100000"
+    assert env["SECONDREAD_MAX_WORDS"] == "100000"
     assert SECRET not in out.getvalue() + err.getvalue()
 
 
@@ -432,7 +432,7 @@ def test_python_dash_m_entry_point(draft: Path) -> None:
         [
             sys.executable,
             "-m",
-            "reviewdesk.cli",
+            "secondread.cli",
             "review",
             str(draft),
             "--fake",
@@ -445,9 +445,9 @@ def test_python_dash_m_entry_point(draft: Path) -> None:
         check=False,
     )
     assert result.returncode == 0, result.stderr
-    assert result.stdout.startswith("# Review Desk report")
+    assert result.stdout.startswith("# Second Read report")
     missing = subprocess.run(
-        [sys.executable, "-m", "reviewdesk.cli", "review", "/no/such/file.md", "--no-env-file"],
+        [sys.executable, "-m", "secondread.cli", "review", "/no/such/file.md", "--no-env-file"],
         capture_output=True,
         text=True,
         timeout=60,

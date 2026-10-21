@@ -1,6 +1,6 @@
 import pytest
 
-from reviewdesk.contracts import (
+from secondread.contracts import (
     AgentName,
     AgentResult,
     AuthError,
@@ -8,8 +8,8 @@ from reviewdesk.contracts import (
     ProviderError,
     ReviewContext,
 )
-from reviewdesk.orchestrator import AgentRegistry, Orchestrator
-from reviewdesk.testing.fakes import (
+from secondread.orchestrator import AgentRegistry, Orchestrator
+from secondread.testing.fakes import (
     OPINION_DOC,
     FakeAgent,
     FakeFetcher,
@@ -76,7 +76,7 @@ async def test_degraded_review_is_never_called_ready():
 
 
 async def test_could_not_verify_findings_get_their_own_section():
-    from reviewdesk.contracts import Finding, Severity, Span
+    from secondread.contracts import Finding, Severity, Span
 
     unverified = Finding(
         id="f_unverified",

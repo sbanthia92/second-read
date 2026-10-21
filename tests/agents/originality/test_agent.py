@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from reviewdesk.agents.originality import OriginalityAgent
-from reviewdesk.contracts import (
+from secondread.agents.originality import OriginalityAgent
+from secondread.contracts import (
     Agent,
     AgentName,
     AgentResult,
@@ -19,7 +19,7 @@ from reviewdesk.contracts import (
     SearchResult,
     Severity,
 )
-from reviewdesk.testing.fakes import (
+from secondread.testing.fakes import (
     FIXED_TIME,
     OPINION_DOC,
     FakeFetcher,

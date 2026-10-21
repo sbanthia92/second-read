@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from reviewdesk.agents.factcheck import FactCheckAgent
-from reviewdesk.agents.factcheck.sources import is_low_quality, is_reputable
-from reviewdesk.contracts import Message, Severity, Verdict
-from reviewdesk.testing.fakes import FakeFetcher, FakeLLM, FakeSearch, make_context
+from secondread.agents.factcheck import FactCheckAgent
+from secondread.agents.factcheck.sources import is_low_quality, is_reputable
+from secondread.contracts import Message, Severity, Verdict
+from secondread.testing.fakes import FakeFetcher, FakeLLM, FakeSearch, make_context
 from tests.agents.factcheck.test_agent import (
     GOALS,
     POINTS,
@@ -198,10 +198,10 @@ async def test_second_look_uses_pages_fetched_for_other_claims():
 
 
 def test_surrounding_context_gives_title_and_paragraph():
-    from reviewdesk.agents.factcheck import prompts
-    from reviewdesk.agents.factcheck.research import MAX_CONTEXT_CHARS, surrounding_context
-    from reviewdesk.contracts import ClaimType
-    from reviewdesk.testing.fakes import OPINION_DOC, claim_for
+    from secondread.agents.factcheck import prompts
+    from secondread.agents.factcheck.research import MAX_CONTEXT_CHARS, surrounding_context
+    from secondread.contracts import ClaimType
+    from secondread.testing.fakes import OPINION_DOC, claim_for
 
     text = OPINION_DOC.text
     quote = "That is simply not true"
@@ -223,7 +223,7 @@ def test_surrounding_context_gives_title_and_paragraph():
 
 
 def test_passage_matching_tolerates_spelling_variants():
-    from reviewdesk.agents.factcheck.sources import find_in_page, shared_terms
+    from secondread.agents.factcheck.sources import find_in_page, shared_terms
 
     page = "The aircraft landed at Munich for refuelling before the flight home. Unrelated text."
     claim = "The plane took a planned refueling stop at Munich."
@@ -401,7 +401,7 @@ async def test_social_host_is_never_reputable_whatever_the_model_says():
 
 
 def test_judge_prompt_allows_simple_inference():
-    from reviewdesk.agents.factcheck import prompts
+    from secondread.agents.factcheck import prompts
 
     assert "arithmetic or simple logic" in prompts.JUDGE_SYSTEM
     assert "source_type" in prompts.ASSESS_SYSTEM
@@ -411,7 +411,7 @@ def test_judge_prompt_allows_simple_inference():
 
 
 def test_has_checkable_detail():
-    from reviewdesk.agents.factcheck.sources import has_checkable_detail
+    from secondread.agents.factcheck.sources import has_checkable_detail
 
     assert has_checkable_detail("Spain won Euro 2016 by passing teams to death")
     assert has_checkable_detail("teams with the ball win nine out of ten matches")
@@ -419,8 +419,8 @@ def test_has_checkable_detail():
 
 
 async def test_supporting_claim_with_a_date_is_fact_checked():
-    from reviewdesk.contracts import ClaimLedger, ClaimType
-    from reviewdesk.testing.fakes import OPINION_DOC, claim_for
+    from secondread.contracts import ClaimLedger, ClaimType
+    from secondread.testing.fakes import OPINION_DOC, claim_for
 
     ledger = ClaimLedger()
     ledger.add_claim(claim_for(OPINION_DOC, POINTS, ClaimType.SUPPORTING, 0.7, id="c_arg"))
@@ -453,6 +453,6 @@ async def test_supporting_claim_with_a_date_is_fact_checked():
 
 
 def test_extractor_prompt_types_argumentative_facts_as_factual():
-    from reviewdesk.agents.extractor.prompts import SYSTEM_PROMPT
+    from secondread.agents.extractor.prompts import SYSTEM_PROMPT
 
     assert 'Classify a sentence as "supporting" only when it' in SYSTEM_PROMPT

@@ -15,7 +15,7 @@ from typing import Any
 
 import httpx2
 
-from reviewdesk.providers.llm import RetryPolicy
+from secondread.providers.llm import RetryPolicy
 
 FIXTURES = Path(__file__).parent / "fixtures"
 

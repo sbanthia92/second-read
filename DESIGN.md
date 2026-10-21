@@ -1,10 +1,10 @@
-# Review Desk — Design Doc
+# Second Read — Design Doc
 
 Exported 2026-09-30 from the Claude Docs design doc. The doc is the source of truth; update this file if the doc changes.
 
 ## Overview
 
-Review Desk is a hosted, multi-agent document reviewer exposed as a single MCP tool, `review_document`. A user connects it to Claude, ChatGPT or Cursor, signs in with Google once, adds their own model API key, and asks for a review of any draft or URL. An orchestrator dispatches specialist agents in parallel, resolves their disagreements, and emails one ranked report.
+Second Read is a hosted, multi-agent document reviewer exposed as a single MCP tool, `review_document`. A user connects it to Claude, ChatGPT or Cursor, signs in with Google once, adds their own model API key, and asks for a review of any draft or URL. An orchestrator dispatches specialist agents in parallel, resolves their disagreements, and emails one ranked report.
 
 **Problem.** Existing AI critique tools argue from the model's own knowledge. They fix grammar or generate generic objections, but they do not check facts against sources or build an opposing case from real evidence.
 
@@ -20,7 +20,7 @@ Review Desk is a hosted, multi-agent document reviewer exposed as a single MCP t
 - Measure quality with a seeded-error evaluation set.
 - Serve as the review pipeline for the author's own football blog.
 
-**Working name:** Review Desk (placeholder).
+**Name:** Second Read.
 
 ## Non-goals
 
@@ -37,7 +37,7 @@ Setup takes about a minute, once; every review after that is one sentence in cha
 
 **One-time setup (web)**
 
-1. User adds the Review Desk MCP server URL in their client (Claude, ChatGPT, Cursor).
+1. User adds the Second Read MCP server URL in their client (Claude, ChatGPT, Cursor).
 2. On first use the client runs the OAuth flow; the user clicks **Sign in with Google**. Google supplies a verified email, so no separate email verification is needed.
 3. A setup page asks for their model provider and API key. The key is validated with a cheap test call, then encrypted and stored.
 
@@ -339,4 +339,4 @@ The biggest risk is retrieval quality; it is prototyped first, in Phase 0.
 - [ ] Offer a short-lived "view report online" link, or email only?
 - [ ] Which clients must work at launch: Claude Desktop, claude.ai, ChatGPT, Cursor?
 - [ ] Allow keys for more than one provider per user in v1?
-- [ ] Product name.
+- [x] Product name: Second Read.

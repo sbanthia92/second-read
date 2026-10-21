@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from reviewdesk.agents.copyedit import TAG_EDIT, CopyEditAgent, CopyEditOutput
-from reviewdesk.agents.copyedit.prompts import MAX_STYLE_GUIDE_CHARS, SYSTEM_PROMPT
-from reviewdesk.agents.copyedit.text import normalize
-from reviewdesk.contracts import (
+from secondread.agents.copyedit import TAG_EDIT, CopyEditAgent, CopyEditOutput
+from secondread.agents.copyedit.prompts import MAX_STYLE_GUIDE_CHARS, SYSTEM_PROMPT
+from secondread.agents.copyedit.text import normalize
+from secondread.contracts import (
     Agent,
     AgentName,
     AgentResult,
@@ -20,7 +20,7 @@ from reviewdesk.contracts import (
     RateLimitError,
     Severity,
 )
-from reviewdesk.testing.fakes import (
+from secondread.testing.fakes import (
     DESIGN_DOC,
     ESSAY_DOC,
     OPINION_DOC,

@@ -6,7 +6,7 @@ from typing import Any
 
 import pytest
 
-from reviewdesk.agents.devils_advocate import (
+from secondread.agents.devils_advocate import (
     TAG_ASSESS,
     TAG_DEBATE,
     TAG_PLAN,
@@ -14,7 +14,7 @@ from reviewdesk.agents.devils_advocate import (
     DevilsAdvocateAgent,
     rebuttal_severity,
 )
-from reviewdesk.contracts import (
+from secondread.contracts import (
     MAX_RESEARCH_ITERATIONS,
     AddRebuttal,
     AddResearchStep,
@@ -38,7 +38,7 @@ from reviewdesk.contracts import (
     SearchResult,
     Severity,
 )
-from reviewdesk.testing.fakes import (
+from secondread.testing.fakes import (
     DESIGN_DOC,
     FIXED_TIME,
     OPINION_DOC,

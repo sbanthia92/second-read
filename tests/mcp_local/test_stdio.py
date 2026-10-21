@@ -1,4 +1,4 @@
-"""End to end over real stdio: ``python -m reviewdesk.mcp_local`` in demo mode.
+"""End to end over real stdio: ``python -m secondread.mcp_local`` in demo mode.
 
 Spawns the server as a subprocess (no network, no keys) and talks to it with
 the SDK's stdio client, exactly as Claude Desktop and Claude Code do.
@@ -12,8 +12,8 @@ from pathlib import Path
 
 from mcp import Client, StdioServerParameters
 
-from reviewdesk.mcp_local import TOOL_NAME
-from reviewdesk.testing.fakes import OPINION_DOC
+from secondread.mcp_local import TOOL_NAME
+from secondread.testing.fakes import OPINION_DOC
 from tests.mcp_local.helpers import ProgressLog, text_of
 
 REPO = Path(__file__).resolve().parents[2]
@@ -25,9 +25,9 @@ def params(**extra_env: str) -> StdioServerParameters:
         for key, value in os.environ.items()
         if key in {"PATH", "HOME", "LANG", "SYSTEMROOT", "TMPDIR"}
     }
-    env.update({"REVIEWDESK_FAKE": "1", "PYTHONPATH": str(REPO), **extra_env})
+    env.update({"SECONDREAD_FAKE": "1", "PYTHONPATH": str(REPO), **extra_env})
     return StdioServerParameters(
-        command=sys.executable, args=["-m", "reviewdesk.mcp_local"], env=env, cwd=str(REPO)
+        command=sys.executable, args=["-m", "secondread.mcp_local"], env=env, cwd=str(REPO)
     )
 
 
@@ -42,7 +42,7 @@ async def test_review_over_stdio_in_demo_mode() -> None:
         too_long = await client.call_tool(TOOL_NAME, {"content": "a b c d e f"})
 
     assert not result.is_error
-    assert text_of(result).startswith("# Review Desk report")
+    assert text_of(result).startswith("# Second Read report")
     assert "Demo mode" in text_of(result)
     assert progress.events, "expected notifications/progress over stdio"
     assert progress.events[-1][0] == 100.0
@@ -52,7 +52,7 @@ async def test_review_over_stdio_in_demo_mode() -> None:
 
 async def test_word_cap_from_env_over_stdio() -> None:
     async with Client(
-        params(REVIEWDESK_MAX_WORDS="5"), mode="legacy", read_timeout_seconds=60
+        params(SECONDREAD_MAX_WORDS="5"), mode="legacy", read_timeout_seconds=60
     ) as client:
         result = await client.call_tool(TOOL_NAME, {"content": "a b c d e f"})
     assert result.is_error

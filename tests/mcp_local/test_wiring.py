@@ -8,7 +8,7 @@ from collections.abc import Iterator
 
 import pytest
 
-from reviewdesk.contracts import (
+from secondread.contracts import (
     AddClaim,
     AgentName,
     AgentResult,
@@ -23,7 +23,7 @@ from reviewdesk.contracts import (
     Report,
     ReviewContext,
 )
-from reviewdesk.mcp_local import (
+from secondread.mcp_local import (
     REGISTRY_BUILDER,
     REGISTRY_MODULE,
     EnvPipeline,
@@ -32,10 +32,10 @@ from reviewdesk.mcp_local import (
     create_server,
     default_runner,
 )
-from reviewdesk.mcp_local.demo import demo_pipeline, demo_registry
-from reviewdesk.mcp_local.wiring import fake_mode, load_registry_builder, max_words_from_env
-from reviewdesk.orchestrator import AgentRegistry
-from reviewdesk.testing.fakes import (
+from secondread.mcp_local.demo import demo_pipeline, demo_registry
+from secondread.mcp_local.wiring import fake_mode, load_registry_builder, max_words_from_env
+from secondread.orchestrator import AgentRegistry
+from secondread.testing.fakes import (
     DESIGN_DOC,
     OPINION_DOC,
     FakeAgent,
@@ -64,7 +64,7 @@ def fake_registry(llm: FakeLLM | None = None) -> AgentRegistry:
 
 @pytest.fixture
 def registry_module() -> Iterator[types.ModuleType]:
-    """Install a stand-in ``reviewdesk.registry`` module for one test."""
+    """Install a stand-in ``secondread.registry`` module for one test."""
     module = types.ModuleType(REGISTRY_MODULE)
     saved = sys.modules.get(REGISTRY_MODULE)
     sys.modules[REGISTRY_MODULE] = module
@@ -78,7 +78,7 @@ def registry_module() -> Iterator[types.ModuleType]:
 
 
 def test_builder_name_is_the_documented_one() -> None:
-    assert (REGISTRY_MODULE, REGISTRY_BUILDER) == ("reviewdesk.registry", "build_registry_from_env")
+    assert (REGISTRY_MODULE, REGISTRY_BUILDER) == ("secondread.registry", "build_registry_from_env")
 
 
 def test_missing_registry_module_is_missing_setup(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -133,7 +133,7 @@ async def test_env_pipeline_runs_the_real_orchestrator_on_the_built_registry(
     second = await call(server, {"content": OPINION_DOC.text})
 
     assert not first.is_error and not second.is_error
-    assert text_of(first).startswith("# Review Desk report")
+    assert text_of(first).startswith("# Second Read report")
     assert builds == [1]  # built once, then cached
     assert progress.events[-1][0] == 100.0
     percents = [p for p, _, _ in progress.events]
@@ -247,7 +247,7 @@ async def test_adapt_pipeline_drops_focus() -> None:
     [("1", True), ("true", True), (" YES ", True), ("on", True), ("0", False), ("", False)],
 )
 def test_fake_mode_flag(value: str, expected: bool) -> None:
-    assert fake_mode({"REVIEWDESK_FAKE": value}) is expected
+    assert fake_mode({"SECONDREAD_FAKE": value}) is expected
     assert fake_mode({}) is False
 
 
@@ -255,12 +255,12 @@ def test_fake_mode_flag(value: str, expected: bool) -> None:
     ("value", "expected"), [("", 20_000), ("500", 500), ("abc", 20_000), ("-3", 20_000)]
 )
 def test_max_words_from_env(value: str, expected: int) -> None:
-    assert max_words_from_env(20_000, {"REVIEWDESK_MAX_WORDS": value}) == expected
+    assert max_words_from_env(20_000, {"SECONDREAD_MAX_WORDS": value}) == expected
 
 
 def test_default_runner_picks_demo_or_env() -> None:
-    assert isinstance(default_runner({"REVIEWDESK_FAKE": "1"}), RegistryPipeline)
-    assert not isinstance(default_runner({"REVIEWDESK_FAKE": "1"}), EnvPipeline)
+    assert isinstance(default_runner({"SECONDREAD_FAKE": "1"}), RegistryPipeline)
+    assert not isinstance(default_runner({"SECONDREAD_FAKE": "1"}), EnvPipeline)
     assert isinstance(default_runner({}), EnvPipeline)
 
 
