@@ -1,0 +1,41 @@
+name: Publish to PyPI
+
+# Runs when a GitHub release is published (or by hand). Uses PyPI trusted
+# publishing: no API token is stored anywhere. PyPI must list this repository,
+# this workflow file and the "pypi" environment as a trusted publisher.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Install Python
+        run: uv python install
+      - name: Test
+        run: |
+          uv sync --locked --managed-python
+          uv run pytest
+      - name: Build
+        run: uv build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1

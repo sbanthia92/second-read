@@ -1,11 +1,20 @@
 [project]
 name = "second-read"
-version = "0.1.0"
-description = "Evidence-backed, multi-agent document reviewer exposed as one MCP tool."
+version = "0.1.1"
+description = "Evidence-backed document review for Claude: fact-checks claims against the web and builds the strongest counter-argument, as an MCP server."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 requires-python = ">=3.12,<3.13"
+authors = [{ name = "Shubham Banthia" }]
+keywords = ["mcp", "claude", "fact-checking", "editing", "review", "llm"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Text Processing",
+]
 dependencies = [
     "anthropic>=1.10.0",
     "beautifulsoup4>=4.15.0",
@@ -19,6 +28,13 @@ dependencies = [
 [project.scripts]
 secondread = "secondread.cli:main"
 secondread-mcp = "secondread.mcp_local.main:main"
+second-read = "secondread.mcp_local.main:main"
+
+[project.urls]
+Homepage = "https://github.com/sbanthia92/second-read"
+Repository = "https://github.com/sbanthia92/second-read"
+Issues = "https://github.com/sbanthia92/second-read/issues"
+Changelog = "https://github.com/sbanthia92/second-read/releases"
 
 [build-system]
 requires = ["hatchling"]
