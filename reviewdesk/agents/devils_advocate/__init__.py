@@ -1,4 +1,4 @@
-"""Devil's advocate agent (T5): the strongest evidence-backed opposing case.
+"""Devil's advocate agent: the strongest evidence-backed opposing case.
 
 ``DevilsAdvocateAgent`` implements ``Agent`` and ``Debater``. See
 ``agent.py`` for the flow and ``prompts.py`` for the prompt tags

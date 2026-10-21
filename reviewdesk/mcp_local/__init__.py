@@ -1,4 +1,4 @@
-"""Local MCP server over stdio (T12): one tool, ``review_document``.
+"""Local MCP server over stdio: one tool, ``review_document``.
 
 Run with ``python -m reviewdesk.mcp_local``. Build a server around any
 pipeline with ``create_server(pipeline=..., fetcher=..., max_words=...)``.

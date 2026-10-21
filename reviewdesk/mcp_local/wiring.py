@@ -5,7 +5,7 @@ plus the optional ``focus`` keyword (``reviewdesk.pipeline.run_review``
 accepts it). ``adapt_pipeline`` wraps a plain ``ReviewPipeline``.
 
 ``EnvPipeline`` is the real wiring. It builds the agent registry lazily, on
-the first review, from ``reviewdesk.registry.build_registry_from_env`` (T11).
+the first review, from ``reviewdesk.registry.build_registry_from_env``.
 If that module or function is missing, or raises ``MissingSetup``, the review
 fails with a clear missing-setup error instead of crashing the server.
 
@@ -155,7 +155,7 @@ def load_registry_builder() -> Callable[[], Any]:
 
 
 class EnvPipeline(RegistryPipeline):
-    """The real pipeline, wired from environment variables by T11's builder."""
+    """The real pipeline, wired from environment variables by the builder."""
 
     def __init__(self) -> None:
         super().__init__(lambda: load_registry_builder()())

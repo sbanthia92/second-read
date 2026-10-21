@@ -1,8 +1,8 @@
 """Shared data models for Review Desk.
 
 Every agent, the orchestrator, the report renderer and the eval harness code
-against these types. They are frozen by Wave 0: request changes through
-``CONTRACT_CHANGES.md`` instead of editing this file from a task branch.
+against these types, so change them deliberately: a change here touches every
+package.
 
 Conventions:
 

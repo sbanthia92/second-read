@@ -1,4 +1,4 @@
-"""Report renderer (T8): ``Report`` to markdown, HTML email and plain text.
+"""Report renderer: ``Report`` to markdown, HTML email and plain text.
 
 Section order follows the design doc: verdict line and counts, must fix,
 strongest counter-case, should fix, polish, originality notes (heuristic),

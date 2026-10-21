@@ -1,4 +1,4 @@
-"""Structure reviewer agent (T6).
+"""Structure reviewer agent.
 
 Flow, argument-order and missing-section findings (``Severity.STRUCTURE``);
 the design-doc variant checks gaps and unstated assumptions.

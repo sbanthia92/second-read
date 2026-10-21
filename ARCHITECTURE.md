@@ -1,25 +1,24 @@
 # Architecture: shared contracts
 
-Summary of the Wave 0 contracts every task codes against. `DESIGN.md` is the
-source of truth for behavior; this file explains the types. Request changes in
-`CONTRACT_CHANGES.md`.
+The shared types every part of Review Desk codes against. `DESIGN.md` is the
+source of truth for behavior; this file explains the types.
 
 ## Layout
 
-| Path | Owner | What |
-| --- | --- | --- |
-| `reviewdesk/contracts/models.py` | T0 | Pydantic v2 data models |
-| `reviewdesk/contracts/interfaces.py` | T0 | Protocols, `ReviewContext`, `BudgetMeter` |
-| `reviewdesk/contracts/errors.py` | T0 | Exception hierarchy |
-| `reviewdesk/testing/fakes.py` | T0 | Fakes for every protocol, `make_context` |
-| `reviewdesk/testing/samples.py` | T0 | Sample documents, ledger, reports |
-| `reviewdesk/providers/{llm,search,fetch}/` | T1, T2 | Provider adapters |
-| `reviewdesk/agents/<name>/` | T3–T7 | One package per agent |
-| `reviewdesk/report/` | T8 | Markdown and HTML rendering |
-| `eval/` | T9 | Eval harness and dataset |
-| `reviewdesk/orchestrator/`, `reviewdesk/pipeline.py` | T10 | Planning, conflict rules, `run_review` |
-| `reviewdesk/cli/`, `reviewdesk/registry.py` | T11 | Real wiring and CLI |
-| `reviewdesk/mcp_local/` | T12 | stdio MCP server |
+| Path | What |
+| --- | --- |
+| `reviewdesk/contracts/models.py` | Pydantic v2 data models |
+| `reviewdesk/contracts/interfaces.py` | Protocols, `ReviewContext`, `BudgetMeter` |
+| `reviewdesk/contracts/errors.py` | Exception hierarchy |
+| `reviewdesk/testing/fakes.py` | Fakes for every protocol, `make_context` |
+| `reviewdesk/testing/samples.py` | Sample documents, ledger, reports |
+| `reviewdesk/providers/{llm,search,fetch}/` | Provider adapters |
+| `reviewdesk/agents/<name>/` | One package per agent |
+| `reviewdesk/report/` | Markdown and HTML rendering |
+| `eval/` | Eval harness and dataset |
+| `reviewdesk/orchestrator/`, `reviewdesk/pipeline.py` | Planning, conflict rules, `run_review` |
+| `reviewdesk/cli/`, `reviewdesk/registry.py` | Real wiring and CLI |
+| `reviewdesk/mcp_local/` | stdio MCP server |
 
 Tests mirror the package path under `tests/` (e.g. `tests/agents/extractor/`).
 
@@ -113,7 +112,7 @@ Document ──► extractor ──► ClaimLedger ──► plan ──► agen
   `meter` (a `BudgetMeter` built from `budget`). Agents `charge` the meter for
   every LLM/search/fetch call and stop gracefully when it is exhausted.
 - **`ReviewPipeline`**: `(doc, profile, on_progress) -> Awaitable[Report]`,
-  implemented by `reviewdesk.pipeline.run_review` (T10).
+  implemented by `reviewdesk.pipeline.run_review`.
 
 ## Errors (`reviewdesk.contracts.errors`)
 

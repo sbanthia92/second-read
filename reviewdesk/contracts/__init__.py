@@ -1,7 +1,6 @@
-"""Frozen shared contracts: models, protocols and errors (Wave 0).
+"""Shared contracts: models, protocols and errors.
 
 Import from here, e.g. ``from reviewdesk.contracts import Claim, LLMClient``.
-Change requests go in ``CONTRACT_CHANGES.md``.
 """
 
 from reviewdesk.contracts.errors import (

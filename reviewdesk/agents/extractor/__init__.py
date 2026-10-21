@@ -1,4 +1,4 @@
-"""Claim extractor agent (T3).
+"""Claim extractor agent.
 
 Splits a document into thesis, supporting and factual claims with exact spans
 and importance scores, returned as ``AddClaim`` ledger updates.

@@ -296,7 +296,7 @@ class Debater(Protocol):
 class ReviewPipeline(Protocol):
     """Shape of the pipeline entry point.
 
-    ``reviewdesk.pipeline.run_review`` implements it (T10). The eval harness
+    ``reviewdesk.pipeline.run_review`` implements it. The eval harness
     and MCP servers accept any callable of this shape.
     """
 
@@ -308,7 +308,7 @@ class ReviewPipeline(Protocol):
 async def run_review(doc: Document, profile: Profile, on_progress: ProgressCallback) -> Report:
     """Contract signature of the pipeline entry point.
 
-    The real implementation lives in ``reviewdesk.pipeline`` (T10). This
+    The real implementation lives in ``reviewdesk.pipeline``. This
     placeholder exists so the signature is documented in one place.
     """
     raise NotImplementedError("use reviewdesk.pipeline.run_review")

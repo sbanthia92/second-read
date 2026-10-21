@@ -1,4 +1,4 @@
-"""Fact-checker agent (T4).
+"""Fact-checker agent.
 
 ``FactCheckAgent`` implements ``Agent`` (name ``factcheck``), ``Rechecker``
 and ``Debater``. Prompt tags, all ``ModelTier.MID``: ``factcheck.queries``,

@@ -1,7 +1,7 @@
 """The agent registry the orchestrator composes a review from.
 
 The orchestrator never imports concrete agents. Whoever wires the pipeline
-(T11's ``reviewdesk.registry`` for real runs, tests for fakes) builds an
+(the ``reviewdesk.registry`` for real runs, tests for fakes) builds an
 ``AgentRegistry`` holding one ``Agent`` per ``AgentName`` plus the LLM, search
 and fetch providers every agent context shares.
 """
