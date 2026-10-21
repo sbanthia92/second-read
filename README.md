@@ -55,7 +55,7 @@ list prices in October 2026) plus about 30 searches.
 claude mcp add second-read \
   -e ANTHROPIC_API_KEY=your-key \
   -e TAVILY_API_KEY=your-key \
-  -- uvx --from git+https://github.com/sbanthia92/second-read secondread-mcp
+  -- uvx second-read
 ```
 
 Start Claude Code with a longer tool timeout, because a review takes minutes:
@@ -78,7 +78,7 @@ the app. If Claude Desktop cannot find `uvx`, use its full path (`which uvx`).
   "mcpServers": {
     "second-read": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/sbanthia92/second-read", "secondread-mcp"],
+      "args": ["second-read"],
       "env": {
         "ANTHROPIC_API_KEY": "your-key",
         "TAVILY_API_KEY": "your-key"
@@ -95,10 +95,11 @@ no model calls.
 ## Command line
 
 ```sh
-git clone https://github.com/sbanthia92/second-read && cd second-read
-cp .env.example .env        # then put your keys in .env
-uv run secondread review path/to/draft.md --profile opinion > report.md
+export ANTHROPIC_API_KEY=your-key TAVILY_API_KEY=your-key
+uvx --from second-read secondread review path/to/draft.md --profile opinion > report.md
 ```
+
+Or keep the keys in a `.env` file and pass it with `--env-file path/to/.env`.
 
 Progress prints to the terminal; the report goes to `report.md`. Use
 `--profile design_doc` for technical design docs, or leave the profile out to
