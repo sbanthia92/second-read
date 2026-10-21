@@ -405,3 +405,54 @@ def test_judge_prompt_allows_simple_inference():
 
     assert "arithmetic or simple logic" in prompts.JUDGE_SYSTEM
     assert "source_type" in prompts.ASSESS_SYSTEM
+
+
+# -- argumentative claims that carry facts --------------------------------------------
+
+
+def test_has_checkable_detail():
+    from reviewdesk.agents.factcheck.sources import has_checkable_detail
+
+    assert has_checkable_detail("Spain won Euro 2016 by passing teams to death")
+    assert has_checkable_detail("teams with the ball win nine out of ten matches")
+    assert not has_checkable_detail("Possession proves who the better team was")
+
+
+async def test_supporting_claim_with_a_date_is_fact_checked():
+    from reviewdesk.contracts import ClaimLedger, ClaimType
+    from reviewdesk.testing.fakes import OPINION_DOC, claim_for
+
+    ledger = ClaimLedger()
+    ledger.add_claim(claim_for(OPINION_DOC, POINTS, ClaimType.SUPPORTING, 0.7, id="c_arg"))
+    ledger.add_claim(
+        claim_for(
+            OPINION_DOC,
+            "Teams that press high concede fewer shots",
+            ClaimType.SUPPORTING,
+            0.7,
+            id="c_opinion",
+        )
+    )
+    llm = FakeLLM(
+        {
+            "factcheck.queries": {"queries": ["liverpool 99 points"]},
+            "factcheck.assess": assess(src(BBC, "supports", QUOTE)),
+            "factcheck.judge": judge("verified", 0.9),
+        }
+    )
+    ctx = make_context(
+        ledger=ledger,
+        llm=llm,
+        search=FakeSearch(default=[hit(BBC)]),
+        fetcher=FakeFetcher({BBC: BBC_TEXT}),
+    )
+    result = await FactCheckAgent().run(ctx)
+    got = verdicts(result)
+    assert got["c_arg"].verdict is Verdict.VERIFIED  # has a year and a number: checked
+    assert "c_opinion" not in got  # pure argument: left to the devil's advocate
+
+
+def test_extractor_prompt_types_argumentative_facts_as_factual():
+    from reviewdesk.agents.extractor.prompts import SYSTEM_PROMPT
+
+    assert 'Classify a sentence as "supporting" only when it' in SYSTEM_PROMPT

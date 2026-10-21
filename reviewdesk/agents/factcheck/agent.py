@@ -26,7 +26,7 @@ from reviewdesk.agents.factcheck.research import (
     estimate_tokens,
 )
 from reviewdesk.agents.factcheck.schemas import DebateReply
-from reviewdesk.agents.factcheck.sources import Source
+from reviewdesk.agents.factcheck.sources import Source, has_checkable_detail
 from reviewdesk.contracts import (
     AgentName,
     AgentResult,
@@ -87,7 +87,14 @@ class FactCheckAgent:
             return AgentResult(agent=self.name, error=f"fact-check unavailable ({_describe(exc)})")
 
     async def _run(self, ctx: ReviewContext) -> AgentResult:
-        claims = ctx.ledger.claims(ClaimType.FACTUAL)
+        # Factual claims first, then argumentative claims that still state
+        # checkable details (a year, a score, a statistic): an argument built
+        # on a wrong fact is still a wrong fact.
+        claims = ctx.ledger.claims(ClaimType.FACTUAL) + [
+            c
+            for c in ctx.ledger.claims(ClaimType.THESIS, ClaimType.SUPPORTING)
+            if has_checkable_detail(c.text)
+        ]
         if not claims:
             return AgentResult(agent=self.name)
         plan = ctx.plan

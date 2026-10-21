@@ -159,6 +159,22 @@ def _terms(text: str) -> set[str]:
     return terms
 
 
+_NUMBER_WORDS = (
+    r"one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|thirty|"
+    r"forty|fifty|hundred|thousand|million|billion|half|third|quarter|twice|percent"
+)
+_CHECKABLE_DETAIL = re.compile(rf"\d|\b({_NUMBER_WORDS})\b", re.IGNORECASE)
+
+
+def has_checkable_detail(text: str) -> bool:
+    """True if ``text`` states a number, year or quantity that can be checked.
+
+    Used to fact-check argumentative claims that still carry facts ("Spain won
+    Euro 2008 by passing teams to death"), not just claims typed as factual.
+    """
+    return bool(_CHECKABLE_DETAIL.search(text))
+
+
 def find_in_page(text: str, claim: str, query: str = "") -> list[str]:
     """Return up to ``MAX_PASSAGES`` sentences of ``text`` most relevant to the claim.
 
