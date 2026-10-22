@@ -1,6 +1,6 @@
 [project]
 name = "second-read"
-version = "0.1.1"
+version = "0.1.2"
 description = "Evidence-backed document review for Claude: fact-checks claims against the web and builds the strongest counter-argument, as an MCP server."
 readme = "README.md"
 license = "MIT"
