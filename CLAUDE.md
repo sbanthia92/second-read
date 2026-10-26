@@ -8,6 +8,7 @@ and a CLI (`secondread review`). Published on PyPI as `second-read`.
   loops, conflict rules, report format).
 - `ARCHITECTURE.md`: the shared types in `secondread/contracts/`.
 - `eval/README.md`: the seeded evaluation set and harness.
+- `ROADMAP.md`: planned features and improvements, in priority order.
 
 ## Commands
 

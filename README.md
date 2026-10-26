@@ -210,7 +210,7 @@ against real providers spends money on your keys.
 
 The local MCP server and command-line tool work. A hosted version (sign in,
 add a key once, get the report by email) is designed in `DESIGN.md` but not
-built.
+built. `ROADMAP.md` lists what comes next.
 
 ## License
 
