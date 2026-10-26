@@ -72,5 +72,5 @@ anything large.
 17. **Evaluation on demand in CI.** A small subset run by hand before
     releases, since every run costs money.
 18. **More directory listings.** Second Read is in the official MCP Registry
-    (`io.github.sbanthia92/second-read`) and Glama. Other directories, such as
-    mcp.directory, are still to do.
+    (`io.github.sbanthia92/second-read`). Glama and other directories, such
+    as mcp.directory, are still to do.
