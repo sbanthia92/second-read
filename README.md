@@ -1,5 +1,7 @@
 # Second Read
 
+<!-- mcp-name: io.github.sbanthia92/second-read -->
+
 Second Read reviews a draft the way a careful editor would, and shows its
 sources. You give it an article, a blog post or a design doc. It returns one
 report:

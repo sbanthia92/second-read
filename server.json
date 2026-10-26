@@ -1,0 +1,36 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.sbanthia92/second-read",
+  "title": "Second Read",
+  "description": "Reviews drafts: fact-checks claims against web sources and builds the strongest counter-case.",
+  "repository": {
+    "url": "https://github.com/sbanthia92/second-read",
+    "source": "github"
+  },
+  "version": "0.1.3",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "second-read",
+      "version": "0.1.3",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "ANTHROPIC_API_KEY",
+          "description": "Anthropic API key, used for the review's model calls",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "TAVILY_API_KEY",
+          "description": "Tavily API key, used for web search",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}

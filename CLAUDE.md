@@ -61,6 +61,8 @@ All four checks must pass before committing. CI runs the same.
 
 ## Releasing
 
-Bump `version` in `pyproject.toml`, run `uv lock`, commit, then publish a
-GitHub release tagged `vX.Y.Z`. The `publish.yml` workflow tests, builds and
-uploads to PyPI through trusted publishing (no token).
+Bump `version` in `pyproject.toml` and both `version` fields in `server.json`
+(a test checks they match), run `uv lock`, commit, then publish a GitHub
+release tagged `vX.Y.Z`. The `publish.yml` workflow tests, builds, uploads to
+PyPI through trusted publishing, then publishes `server.json` to the official
+MCP Registry with GitHub OIDC. No tokens are stored.
