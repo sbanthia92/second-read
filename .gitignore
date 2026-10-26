@@ -15,7 +15,6 @@ eval/results/
 .claude/worktrees/
 
 # Local build-process notes and Claude Code project config (kept on disk, not published)
-CLAUDE.md
 TASKS.md
 CONTRACT_CHANGES.md
 .claude/
