@@ -571,7 +571,16 @@ class ClaimResearch:
             proposed, confidence, explanation = "unsupported", 0.3, ""
 
         def evidence_of(items: list[Source]) -> list[Evidence]:
-            return [s.evidence for s in items if s.evidence is not None]
+            # Cite only what the judge relied on: it read each excerpt, so a
+            # source whose excerpt does not back the verdict is dropped. The
+            # verdict rules above still see every source, so this never loosens
+            # them. If the judge named nothing we showed it, keep everything.
+            items_evidence = [s.evidence for s in items if s.evidence is not None]
+            if judgment is None:
+                return items_evidence
+            relied_on = set(judgment.evidence_urls)
+            cited = [e for e in items_evidence if e.url in relied_on]
+            return cited or items_evidence
 
         if proposed == "verified" and sup_settled:
             self._step(ResearchAction.STOP, "verified", reason, [s.url for s in supporting])
