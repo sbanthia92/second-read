@@ -115,7 +115,11 @@ Evidence about a different event, season, person or organisation than the one \
 the claim (read with its surrounding passage) is about does not count for or \
 against it.
 Prefer primary sources when sources disagree. Give a confidence from 0 to 1, \
-a one or two sentence explanation, and the URLs of the evidence you relied on.
+a one or two sentence explanation, and in "evidence_urls" the URLs of the \
+evidence you relied on. List a URL only if its excerpt, as shown, itself \
+backs your verdict; leave out any whose excerpt is off-topic, about a \
+different event, or does not bear on the claim, even if it was labelled as \
+supporting or contradicting.
 
 {_UNTRUSTED_RULES}"""
 

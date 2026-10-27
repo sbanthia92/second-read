@@ -183,6 +183,38 @@ async def test_verified_with_primary_source():
     assert_applies(result, ledger)
 
 
+async def _points_verdict(judge_urls: list[str]) -> SetVerdict:
+    ledger = ledger_of((POINTS, 0.6, "c_points"))
+    llm = FakeLLM(
+        {
+            "factcheck.queries": {"queries": ["Liverpool 2019-20 Premier League points"]},
+            "factcheck.assess": assess(
+                src(PL_URL, "supports", "Liverpool: played 38, won 32, points 99.", primary=True),
+                src(NEWS_URL, "supports", NEWS_TEXT),
+            ),
+            "factcheck.judge": judge("verified", 0.95, evidence_urls=judge_urls),
+        }
+    )
+    search = FakeSearch(
+        {"liverpool": [hit(NEWS_URL, "News", rank=1), hit(PL_URL, "Table", rank=2)]}
+    )
+    fetcher = FakeFetcher({PL_URL: PL_TEXT, NEWS_URL: NEWS_TEXT})
+    ctx = make_context(ledger=ledger, llm=llm, search=search, fetcher=fetcher)
+    return verdicts(await FactCheckAgent().run(ctx))["c_points"]
+
+
+async def test_only_evidence_the_judge_relied_on_is_cited():
+    verdict = await _points_verdict([PL_URL])
+    assert verdict.verdict is Verdict.VERIFIED
+    assert [e.url for e in verdict.evidence] == [PL_URL]
+
+
+async def test_all_evidence_kept_when_judge_names_none_we_showed_it():
+    verdict = await _points_verdict(["https://invented.example.com/page"])
+    assert verdict.verdict is Verdict.VERIFIED
+    assert {e.url for e in verdict.evidence} == {PL_URL, NEWS_URL}
+
+
 async def test_wrong_with_two_independent_sources():
     ledger = ledger_of((GOALS, 0.8, "c_goals"))
     llm = FakeLLM(
