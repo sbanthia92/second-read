@@ -94,6 +94,21 @@ To try it without keys, replace the `env` block with
 `{"SECONDREAD_FAKE": "1"}`. Demo mode returns placeholder findings and makes
 no model calls.
 
+## Install: other MCP clients
+
+Any client that runs local (stdio) MCP servers can use the same command. For
+Cursor, VS Code and similar, add a server named `second-read` that runs
+`uvx second-read` with `ANTHROPIC_API_KEY` and `TAVILY_API_KEY` in its
+environment, as in the Claude Desktop example above.
+
+Second Read is listed in the [official MCP Registry](https://registry.modelcontextprotocol.io)
+as `io.github.sbanthia92/second-read`, so clients and directories that read the
+registry can find it.
+
+ChatGPT and claude.ai on the web connect only to remote (hosted) MCP servers,
+so they cannot run Second Read yet. A hosted version is on the
+[roadmap](ROADMAP.md).
+
 ## Command line
 
 ```sh
