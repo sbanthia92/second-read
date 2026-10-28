@@ -2,7 +2,7 @@
 
 Run with ``python -m secondread.mcp_local``. Build a server around any
 pipeline with ``create_server(pipeline=..., fetcher=..., max_words=...)``.
-See ``README.md`` in this package for Claude Desktop and Claude Code setup.
+See the repository README for Claude Desktop and Claude Code setup.
 """
 
 from secondread.mcp_local.errors import InvalidInput, user_message

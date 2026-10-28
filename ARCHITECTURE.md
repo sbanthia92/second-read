@@ -1,10 +1,9 @@
 # Architecture
 
 How Second Read is built, why it is built that way, and what each choice costs.
-This describes the code as it is today. `DESIGN.md` is the original design,
-including a hosted service that is not built; where the two differ, this file
-describes what runs and `DESIGN.md` describes the plan. The last part of this
-file is the reference for the shared types in `secondread/contracts/`.
+This describes the code as it is today. A hosted service is planned but not
+built; it is described near the end. The last part of this file is the
+reference for the shared types in `secondread/contracts/`.
 
 ## What it is
 
@@ -22,6 +21,18 @@ Both call the same function, `secondread.pipeline.run_review`. Nothing is
 hosted, nothing is stored after a review, and no data goes to the project's
 author. Document text goes to the model provider (Anthropic) and claim-derived
 search queries go to the search provider (Tavily), both under the user's keys.
+
+## Non-goals
+
+- **Writing for the user.** Agents critique and verify; they never draft or
+  rewrite the argument.
+- **Granular public tools.** No `extract_claims` or `find_counterevidence`;
+  exposing them would hand orchestration to the client.
+- **Hosted models.** The project never pays for inference; users bring their
+  own keys.
+- **Guaranteed plagiarism detection.** The originality check is a heuristic and
+  is labelled as one.
+- **Auto-publishing or posting.** Out of scope.
 
 ## System overview
 
@@ -107,6 +118,23 @@ default. Every agent charges one shared `BudgetMeter` for each model, search
 and fetch call. Hitting the time limit returns partial results with a note.
 When budget runs short, lower-importance claims get a single search or are
 marked `unchecked`; the job does not fail.
+
+### The report
+
+`Report` is structured data, rendered to markdown (the tool result), HTML (for
+email) and plain text. Sections, in order:
+
+1. **Verdict line:** one sentence on readiness, with counts by severity.
+2. **Must fix:** factual errors and unsupported claims, each with the quoted
+   span, the problem and its sources. **Could not verify** sits beneath it at
+   lower severity.
+3. **Strongest counter-case:** the devil's advocate's top three rebuttals, each
+   with sources and the claim it targets.
+4. **Should fix:** structure findings.
+5. **Polish:** copy edits, grouped.
+6. **Originality notes:** possible matches, labelled heuristic.
+7. **Appendix:** the claim ledger with verdicts and sources, then a footer with
+   usage and degradation notices.
 
 ## The agents
 
@@ -299,10 +327,10 @@ deep research is limited to the most important claims.
 
 **Local and bring-your-own-key, not hosted.**
 Why: the project never pays for inference, stores no documents, and needs no
-accounts, queue or email, and `DESIGN.md` builds the local engine first so
-hosting work waits until review quality is proven. Cost: setup needs `uv` and two API keys, and ChatGPT and claude.ai on
-the web cannot connect, because they accept only remote MCP servers. A hosted
-service is designed in `DESIGN.md` and listed on the roadmap.
+accounts, queue or email, and building the local engine first meant hosting
+work could wait until review quality was proven. Cost: setup needs `uv` and two
+API keys, and ChatGPT and claude.ai on the web cannot connect, because they
+accept only remote MCP servers. The hosted design is below and on the roadmap.
 
 **One public tool, not granular ones.**
 Why: exposing `extract_claims` or `find_counterevidence` would hand
@@ -331,8 +359,40 @@ behaviour, so live runs and the evaluation still matter.
 Why: quality needs numbers. Each document carries known defects (wrong facts,
 unsupported claims, weak arguments, borrowed sentences, grammar errors,
 conflicts) and the harness scores recall, precision, citation validity,
-rebuttal strength, cost and latency against a single-prompt baseline. Cost:
-runs spend real money, so it runs by hand, not on every push.
+rebuttal strength, cost and latency against a single-prompt baseline. The set
+also seeds multi-part claims and claims whose top search results are secondary
+sources, where research loops should matter most. Cost: runs spend real money,
+so it runs by hand, not on every push.
+
+## Planned: hosted service
+
+Not built. This is the design the roadmap item "Remote MCP server" refers to, so
+that ChatGPT and claude.ai on the web can use Second Read.
+
+- **Shape.** A thin MCP and setup server (Streamable HTTP, OAuth 2.1, Google
+  sign-in) that authenticates, enqueues a job and relays status. Workers run the
+  same orchestrator and agents as today.
+- **Response modes**, chosen from the client's declared capabilities: MCP Tasks
+  (a task handle with live status), progress notifications (the call stays open
+  and streams steps), or fire-and-forget. The report is always emailed too, so a
+  dropped connection loses nothing.
+- **Job lifecycle:** queued, extracting, reviewing, resolving, reporting,
+  emailed, purged. Transient errors retry with backoff; a failed agent degrades
+  the report; a hard time cap emails partial results; a content hash plus user
+  ID de-duplicates double submits.
+- **Keys.** Entered only on a setup page, validated with a cheap test call,
+  stored with envelope encryption (a per-user data key wrapped by a KMS master
+  key), decrypted only inside a worker for one job, never logged.
+- **Data.** Three tables: users (Google subject and verified email), provider
+  keys (encrypted) and job metadata (kept 30 days, no content). Documents,
+  ledgers and reports are deleted after delivery. OAuth refresh tokens are
+  stored hashed.
+- **Limits.** Per-user daily cap, per-job token and search caps, a global
+  circuit breaker on the search provider. Traces record metadata, never text.
+- **What it needs:** hosting, a job queue, a database, a KMS, a search plan and
+  a transactional email provider with SPF and DKIM.
+- **Trade-off.** It removes the setup friction for web clients, at the price of
+  operating a service that holds users' keys, which the local design avoids.
 
 ## Known limits
 

@@ -58,7 +58,7 @@ anything large.
 
 ## Later: hosted version
 
-15. **Remote MCP server.** Designed in `DESIGN.md`: add a URL in Claude,
+15. **Remote MCP server.** Designed in `ARCHITECTURE.md`: add a URL in Claude,
     ChatGPT or Cursor, sign in with Google, add a key once, get the report by
     email. This makes Second Read usable from claude.ai and ChatGPT without
     installing anything. It needs hosting, a job queue, encrypted key storage

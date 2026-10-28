@@ -1,6 +1,6 @@
 # Second Read eval
 
-Seeded-error evaluation set and harness (see "Evaluation" in `DESIGN.md`).
+Seeded-error evaluation set and harness (see "Quality and testing" in `ARCHITECTURE.md`).
 
 ```
 uv run python -m eval validate                     # check every answer-key span
@@ -51,7 +51,7 @@ original and invented) and `<id>.json` (the answer key):
 - Borrowed sentences come from public-domain texts on Project Gutenberg.
 - Every `wrong_fact` carries a `correction` with the true value.
 - `note` is free text. Two tags at the start of a note mark the cases where
-  research loops should matter most (see "Evaluation" in `DESIGN.md`):
+  research loops should matter most (see "Quality and testing" in `ARCHITECTURE.md`):
   - `[multi-part]`: the sentence holds two or more facts and only one is
     wrong. Where the true half stands on its own it is also seeded as a
     `rebuttal_on_verified_fact` conflict, so a pipeline that splits the claim
