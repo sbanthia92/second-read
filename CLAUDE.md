@@ -6,7 +6,7 @@ and a CLI (`secondread review`). Published on PyPI as `second-read`.
 - `README.md`: what it does, install, settings.
 - `DESIGN.md`: the design; source of truth for behavior (agents, research
   loops, conflict rules, report format).
-- `ARCHITECTURE.md`: the shared types in `secondread/contracts/`.
+- `ARCHITECTURE.md`: how the system is built, the design decisions and trade-offs, and the shared types in `secondread/contracts/`.
 - `eval/README.md`: the seeded evaluation set and harness.
 - `ROADMAP.md`: planned features and improvements, in priority order.
 

@@ -209,7 +209,7 @@ An orchestrator runs specialist agents and settles their disagreements:
 4. Fixed rules settle what is left (for example, a grammar fix on a sentence
    flagged as wrong is dropped), findings are ranked, and the report is written.
 
-`DESIGN.md` has the full design. `ARCHITECTURE.md` describes the shared types.
+`DESIGN.md` has the original design. `ARCHITECTURE.md` describes how the system is built, the decisions behind it and their trade-offs, and the shared types.
 
 ## Development
 
