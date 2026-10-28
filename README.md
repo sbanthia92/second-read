@@ -156,16 +156,30 @@ file (the server reads `.env` from its working directory, or the file named by
 | `SECONDREAD_MAX_WORDS` | Document size cap (default 20000) |
 | `SECONDREAD_FAKE=1` | Demo mode: no keys, no model calls |
 
-## What leaves your machine
+## Privacy
 
-- **Your document** goes to Anthropic, under your key and their terms.
-- **Search queries** built from your document's claims, and up to eight
-  sentences quoted exactly for the originality check, go to Tavily.
-- **Web pages** named in search results are fetched directly from your machine.
-  The fetcher refuses private and local network addresses.
+Second Read runs on your machine. The project's author runs no server and
+receives no data.
 
-Nothing is stored after the review finishes, and nothing is sent anywhere
-else. Keys are read from your environment and are never logged.
+- **What it collects.** Nothing is collected by the project. To do a review the
+  tool handles the document you give it and the web pages it retrieves.
+- **What leaves your machine, and where.**
+  - Your document goes to Anthropic, under your key and their terms.
+  - Search queries built from your document's claims, and up to eight sentences
+    quoted exactly for the originality check, go to Tavily, under your key and
+    their terms.
+  - Web pages named in search results are fetched directly from your machine.
+    The fetcher refuses private and local network addresses.
+- **Storage and retention.** Nothing is stored after the review finishes. The
+  report is returned to your client and is not kept by Second Read. Logs go to
+  your terminal and never contain keys or document text.
+- **Sharing.** Nothing is shared with anyone else. The only third parties are
+  the model and search providers above, which you choose by supplying their keys.
+- **Keys.** Read from your environment or a `.env` file you control, and never
+  logged.
+- **Contact.** Questions or concerns: open an issue at
+  <https://github.com/sbanthia92/second-read/issues>. For security problems see
+  [`SECURITY.md`](SECURITY.md).
 
 ## How well it works
 
@@ -209,7 +223,7 @@ An orchestrator runs specialist agents and settles their disagreements:
 4. Fixed rules settle what is left (for example, a grammar fix on a sentence
    flagged as wrong is dropped), findings are ranked, and the report is written.
 
-`DESIGN.md` has the full design. `ARCHITECTURE.md` describes the shared types.
+`ARCHITECTURE.md` describes how the system is built, the decisions behind it and their trade-offs, the planned hosted service, and the shared types.
 
 ## Development
 
@@ -226,7 +240,7 @@ against real providers spends money on your keys.
 ## Status
 
 The local MCP server and command-line tool work. A hosted version (sign in,
-add a key once, get the report by email) is designed in `DESIGN.md` but not
+add a key once, get the report by email) is designed in `ARCHITECTURE.md` but not
 built. `ROADMAP.md` lists what comes next.
 
 ## License

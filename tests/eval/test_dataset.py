@@ -116,7 +116,7 @@ def test_seeded_conflicts_are_well_formed() -> None:
 
 
 def test_multi_part_and_secondary_source_claims_are_seeded() -> None:
-    """DESIGN.md: seed the claims where research loops should matter most."""
+    """Seed the claims where research loops should matter most (ARCHITECTURE.md)."""
     new = [d for d in load_dataset() if _number(d) >= FIRST_LONG_DOC]
     for tag in ("[multi-part]", "[secondary-source]"):
         tagged = [doc.id for doc in new if any(tag in d.note for d in doc.defects)]

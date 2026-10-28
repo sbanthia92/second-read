@@ -1,7 +1,7 @@
 """Reaction-round helpers: who gets re-checked, who debates, and code rulings.
 
-Pure functions only; ``Orchestrator`` does the calls. From DESIGN.md "Agents
-react to each other":
+Pure functions only; ``Orchestrator`` does the calls. See ARCHITECTURE.md, "How a
+review runs" (step 5, React):
 
 - Re-check: the devil's advocate's evidence contradicts a claim marked
   verified (an evidence-backed rebuttal with ``target == FACT``) -> one

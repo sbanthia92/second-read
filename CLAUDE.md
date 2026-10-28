@@ -4,9 +4,9 @@ Evidence-backed document reviewer, exposed as one MCP tool (`review_document`)
 and a CLI (`secondread review`). Published on PyPI as `second-read`.
 
 - `README.md`: what it does, install, settings.
-- `DESIGN.md`: the design; source of truth for behavior (agents, research
-  loops, conflict rules, report format).
-- `ARCHITECTURE.md`: the shared types in `secondread/contracts/`.
+- `ARCHITECTURE.md`: source of truth for behavior (agents, research loops,
+  conflict rules, report format), the design decisions and trade-offs, the
+  planned hosted service, and the shared types in `secondread/contracts/`.
 - `eval/README.md`: the seeded evaluation set and harness.
 - `ROADMAP.md`: planned features and improvements, in priority order.
 

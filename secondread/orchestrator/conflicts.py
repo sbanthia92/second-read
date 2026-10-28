@@ -3,7 +3,7 @@
 Every rule takes a ``ClaimLedger``, never mutates it, and returns a
 ``Resolution``: a new ledger plus the ``Decision``s taken (IDs and reasons
 only, never document text, so they are safe to trace). The rules, from
-DESIGN.md "Conflict resolution rules":
+ARCHITECTURE.md "Conflict rules":
 
 1. ``drop_copy_edits_on_flagged_spans``: a copy edit touching a span flagged
    wrong or unsupported is dropped; the fact finding wins.

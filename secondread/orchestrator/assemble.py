@@ -1,4 +1,4 @@
-"""Report assembly from a resolved ledger (DESIGN.md "Report structure")."""
+"""Report assembly from a resolved ledger (ARCHITECTURE.md "The report")."""
 
 from __future__ import annotations
 
