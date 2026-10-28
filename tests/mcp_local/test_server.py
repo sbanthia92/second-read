@@ -40,6 +40,17 @@ async def test_lists_exactly_one_tool_with_the_design_inputs() -> None:
     assert schema["properties"]["profile"]["default"] == "auto"
 
 
+async def test_tool_declares_a_title_and_annotations() -> None:
+    server = create_server(pipeline=RecordingPipeline(), fetcher=FakeFetcher())
+    async with Client(server, mode="legacy") as client:
+        [tool] = (await client.list_tools()).tools
+    assert tool.title == "Review a document"
+    assert tool.annotations is not None
+    assert tool.annotations.read_only_hint is True
+    assert tool.annotations.destructive_hint is False
+    assert tool.annotations.open_world_hint is True
+
+
 @pytest.mark.parametrize("mode", ["legacy", "auto"])
 async def test_content_returns_markdown_report(mode: str) -> None:
     pipeline = RecordingPipeline()

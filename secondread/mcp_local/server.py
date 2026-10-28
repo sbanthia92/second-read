@@ -23,6 +23,7 @@ from typing import Annotated, Literal
 
 from mcp.server.mcpserver import Context, MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
+from mcp.types import ToolAnnotations
 from pydantic import Field
 
 from secondread.contracts import (
@@ -43,6 +44,7 @@ log = logging.getLogger(__name__)
 
 SERVER_NAME = "second-read"
 TOOL_NAME = "review_document"
+TOOL_TITLE = "Review a document"
 DEFAULT_MAX_WORDS = 20_000
 MAX_FOCUS_CHARS = 1_000
 MAX_URL_CHARS = 2_048
@@ -53,6 +55,16 @@ TOOL_DESCRIPTION = (
     "reviewer, a copy editor and an originality check. Returns a markdown report (must fix, "
     "counter-case, should fix, polish, originality notes, claim ledger). Pass exactly one of "
     "`content` (the text or markdown) or `url` (a public page). Reviews take a few minutes."
+)
+
+TOOL_ANNOTATIONS = ToolAnnotations(
+    title=TOOL_TITLE,
+    # Changes nothing on the user's machine or elsewhere: it reads the document,
+    # searches the web and fetches public pages, then returns a report.
+    read_only_hint=True,
+    destructive_hint=False,
+    # Searches and fetches pages from the open web.
+    open_world_hint=True,
 )
 
 INSTRUCTIONS = (
@@ -129,7 +141,13 @@ def create_server(
     page_fetcher: Fetcher = fetcher if fetcher is not None else _LazyHttpFetcher()
     server: MCPServer = MCPServer(SERVER_NAME, instructions=INSTRUCTIONS)
 
-    @server.tool(name=TOOL_NAME, description=TOOL_DESCRIPTION, structured_output=False)
+    @server.tool(
+        name=TOOL_NAME,
+        title=TOOL_TITLE,
+        description=TOOL_DESCRIPTION,
+        annotations=TOOL_ANNOTATIONS,
+        structured_output=False,
+    )
     async def review_document(
         ctx: Context,
         content: Annotated[
