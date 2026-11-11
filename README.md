@@ -210,9 +210,10 @@ sentences means an originality note on the copied sentence.
 
 **Reading the result.** Second Read earns its cost on claims that need looking
 up: recent events, exact figures, and details a model cannot know from memory.
-Most of the gain comes from searching and reading sources, and every finding
-names its source so you can check it in one click. It is slower and costs
-about 25 times the tokens, and it did worse on borrowed sentences.
+The gain appears to come mainly from searching and reading sources, though
+this test did not separate that from the other design choices. Every finding
+names its source so you can check it in one click. It is slower, uses about 27
+times the tokens, and did worse on borrowed sentences.
 
 **Limits of this test.** It is small: 19 errors, one run each, so each error
 is worth about five points and the exact percentages are rough. It does not
