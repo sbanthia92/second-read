@@ -183,22 +183,43 @@ receives no data.
 
 ## How well it works
 
-Measured on a small test in October 2026: four articles with planted errors
-that cannot be caught from memory (recent results, exact figures), one run
-each, compared with asking the same model to "review this and argue the other
-side" in a single prompt.
+**What was tested.** Four articles written for the test, each with errors
+planted in it that cannot be settled from memory (recent results, exact
+figures): 19 planted wrong facts in all. Every planted error has an answer key
+recording the exact sentence and the true value. Each article was reviewed once
+by two setups:
+
+- **Single prompt:** one request to the model Second Read uses for its
+  strongest tier, "review this and argue the other side". No web search, so it
+  cannot look anything up or cite a page.
+- **Second Read:** the full review described below, with web search.
+
+**What "caught" means.** The report has a factual-error finding on the
+sentence that holds the planted error. A "could not verify" note does not
+count, so a careful miss scores as a miss. "Rebutted" means a counter-argument
+was written against a deliberately weak argument; "caught" for borrowed
+sentences means an originality note on the copied sentence.
 
 | | Single prompt | Second Read |
 | --- | --- | --- |
-| Planted wrong facts caught (19) | 7 | 13 |
-| ...with a cited source | 0 | 13 |
-| Weak arguments rebutted (4) | 2 | 4 |
-| Borrowed sentences caught (3) | 3 | 1 |
+| Planted wrong facts caught (of 19) | 7 | 13 |
+| ...of those, with a cited source | 0 | 13 |
+| Weak arguments rebutted (of 4) | 2 | 4 |
+| Borrowed sentences caught (of 3) | 3 | 1 |
 | Tokens per article | about 5,000 | about 136,000 |
 
-Second Read earns its cost on claims that need looking up: recent events,
-exact figures, and details a model cannot know from memory. Every finding
-names its source, so you can check it in one click.
+**Reading the result.** Second Read earns its cost on claims that need looking
+up: recent events, exact figures, and details a model cannot know from memory.
+Most of the gain comes from searching and reading sources, and every finding
+names its source so you can check it in one click. It is slower and costs
+about 25 times the tokens, and it did worse on borrowed sentences.
+
+**Limits of this test.** It is small: 19 errors, one run each, so each error
+is worth about five points and the exact percentages are rough. It does not
+measure false alarms (true facts wrongly called wrong) for either setup. It
+does not say which of the six misses were careful "could not verify" results
+and which were missed outright. A larger run (all 40 documents, three runs
+each) is on the [roadmap](ROADMAP.md).
 
 Getting the most from it:
 
