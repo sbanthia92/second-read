@@ -242,7 +242,7 @@ reader (a claim with a real but weak source ends up "could not verify").
 Why: the point of the tool is checkable claims, not model opinion. Excerpts are
 validated against retrieved text so a citation cannot be invented. Cost: the
 tool cannot flag what it cannot find a source for, and a retrieved excerpt can
-still be on-topic but not supportive (see the first roadmap item).
+still be on-topic but not supportive (see "Citations that always support the finding" in `ROADMAP.md`).
 
 **"Could not verify" is separate from "unsupported".**
 Why: absence of evidence is not an error, and calling it one would make false
