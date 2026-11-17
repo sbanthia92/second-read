@@ -129,6 +129,7 @@ Pooled over documents per run, then mean ± stdev across repeats.
 | Recall per type | caught defects / seeded defects of that type |
 | Recall: wrong facts that need a source | caught / seeded `wrong_fact` defects tagged `[needs-source]` |
 | Wrong facts caught with a cited source | `wrong_fact` defects caught by an item citing a well-formed source / all `wrong_fact` defects. A reviewer working from memory scores 0 |
+| Wrong facts flagged at any level | `wrong_fact` defects the author was alerted to in any fact finding (factual error, unsupported, or "could not verify") / all `wrong_fact` defects. Always at least the recall figure; the gap is errors the tool flagged without calling them wrong |
 | Fact findings that cite a source | must-fix fact findings (factual error, unsupported) with at least one well-formed source / all of them |
 | True facts called wrong | facts seeded as true (`rebuttal_on_verified_fact` spans) flagged by a factual-error finding that catches no planted wrong fact / all of them (lower is better). A finding on a sentence that also holds a planted error does not count |
 | Precision (matched + judge) | (matched items + unmatched items the judge calls real) / (matched + judged) |
@@ -143,6 +144,52 @@ A run writes each score to `eval/results/<stamp>.partial.jsonl` as it
 completes, and stops early (exit code 3, results kept) if the provider rejects
 the key or the account has no credit. The CLI also lists every missed defect
 per pipeline.
+
+## Why a fact error was missed
+
+For every `wrong_fact` or `unsupported` defect a run does not catch, the harness
+reads the saved report's claim ledger and findings and names the stage where the
+error got through. It calls no model and costs nothing extra. The CLI prints the
+counts per stage and one line per miss (and the `.md` result file holds the
+same); the full detail is in the `.json` result under each defect's `miss`.
+
+| Stage | Meaning | Usual fix |
+| --- | --- | --- |
+| `not_extracted` | No factual claim covers the sentence | Extractor: find more claims |
+| `not_checked` | A claim covers it but was never researched (claim cap, budget, provider failure) | Importance ranking, claim and budget caps |
+| `judged_verified` | Researched and marked verified | Judge strictness, part-by-part checks |
+| `could_not_verify` | Only a lower-severity "could not verify" note was written | Better queries, fetching, second attempt |
+| `flagged_unsupported` | Flagged unsupported (must fix) but not called wrong | The rules for calling a claim wrong |
+| `wrong_no_finding` | Verdict wrong but no matching finding reached the report | Conflict rules, merging, spans |
+| `span_too_wide` | A factual-error finding exists but is a catch-all span | Finding spans |
+| `not_flagged` | Researched, neither verified nor wrong, nothing reported | Report assembly |
+
+`could_not_verify` and `flagged_unsupported` still alerted the author, which is
+why the "flagged at any level" metric can sit above recall. The detail on each
+line says how the claim was researched: searches, pages fetched (and how many
+failed), sources kept, rounds, and the first queries tried. A pipeline that
+keeps no research ledger (the single-prompt baseline) gets no diagnosis.
+
+## Running it for real
+
+A real run calls Anthropic and Tavily on your keys and costs money (roughly
+$2-5 for four documents without the judge, and about $1-3 more with it).
+
+```sh
+cp .env.example .env        # fill in ANTHROPIC_API_KEY and TAVILY_API_KEY
+uv sync
+uv run python -m eval run -p baseline -p full=eval.live:full \
+  --llm eval.live:make_llm --judge \
+  --docs 31-womens-champions-league,32-national-league-third-place,33-mjallby-model,34-congestion-charge
+```
+
+Results go to `eval/results/` (the table, the miss diagnosis, every score and
+each saved report). Documents 31-34 hold 19 planted wrong facts, the same count
+as the README's October test, though the original four documents are not recorded.
+
+**Tuning and held-out documents.** When changing the pipeline to fix misses,
+tune against documents 31-35 and report results on 36-40, which stay untouched.
+Quoting a score on the documents the pipeline was adjusted against overstates it.
 
 Conflict checks:
 

@@ -23,7 +23,7 @@ from pathlib import Path
 from eval.dataset import SeededDocument
 from eval.judge import EvalJudge
 from eval.metrics import DocScore, score_report
-from eval.results import EvalResults
+from eval.results import EvalResults, render_misses
 from secondread.contracts import Profile, ProgressEvent, Report, ReviewPipeline
 
 RESULTS_DIR = Path(__file__).parent / "results"
@@ -167,5 +167,7 @@ def save_results(results: EvalResults, directory: Path | None = None) -> tuple[P
     json_path = root / f"{stamp}.json"
     md_path = root / f"{stamp}.md"
     json_path.write_text(results.model_dump_json(indent=2), encoding="utf-8")
-    md_path.write_text(results.table() + "\n", encoding="utf-8")
+    misses = render_misses(results)
+    body = results.table() + ("\n\n" + misses if misses else "")
+    md_path.write_text(body + "\n", encoding="utf-8")
     return json_path, md_path
