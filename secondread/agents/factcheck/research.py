@@ -86,6 +86,15 @@ SECOND_LOOK_MIN_TERMS = 3
 SECOND_LOOK_TOKENS = 4_000
 """Extra per-claim token allowance for the second look."""
 
+DEPTH_DEEP = "deep research"
+DEPTH_SINGLE = "single search"
+"""How each search step says whether its claim was planned for the full loop or a
+single search. Read back by the evaluation's miss diagnosis."""
+FETCH_FAILED_PREFIX = "Fetch failed"
+"""How a research step words a page that could not be fetched. The reason follows
+in brackets, e.g. ``Fetch failed (HTTP 403).``"""
+MAX_FETCH_REASON_CHARS = 80
+
 _OUT_QUERIES = 300
 _OUT_ASSESS = 1_000
 _OUT_JUDGE = 900
@@ -165,6 +174,8 @@ class ClaimResearch:
         self.actions = 0
         self.iteration = 1
         self.sources: dict[str, Source] = {}
+        self.fetch_error = ""
+        """Why the most recent fetch failed (a short, safe message), or empty."""
         self.open_parts: list[str] | None = None
         """Parts of the claim no source has confirmed or contradicted yet
         (None until the first assessment)."""
@@ -205,9 +216,11 @@ class ClaimResearch:
     async def _fetch(self, url: str) -> FetchedPage | None:
         self.ctx.meter.require_time()
         self._charge(Usage(fetch_calls=1))
+        self.fetch_error = ""
         try:
             return await self.ctx.fetcher.fetch(url)
-        except FetchError:
+        except FetchError as exc:
+            self.fetch_error = _clip(str(exc), MAX_FETCH_REASON_CHARS)
             return None
 
     def _step(
@@ -248,11 +261,12 @@ class ClaimResearch:
         page = await self._fetch(url)
         self.actions += 1
         if page is None:
+            failed = f"{FETCH_FAILED_PREFIX} ({self.fetch_error or 'unknown reason'})"
             if not snippet:
-                self._step(ResearchAction.FETCH_PAGE, url, "Fetch failed.")
+                self._step(ResearchAction.FETCH_PAGE, url, f"{failed}.")
                 self.sources[url] = Source(url=url, title=title, text="", passages=[])
                 return None
-            self._step(ResearchAction.FETCH_PAGE, url, "Fetch failed; using the search snippet.")
+            self._step(ResearchAction.FETCH_PAGE, url, f"{failed}; using the search snippet.")
             text, passages, kind, can_be_primary = snippet, [snippet], "snippet", False
         else:
             self._step(ResearchAction.FETCH_PAGE, url, f"Fetched: {page.title}", [page.final_url])
@@ -283,8 +297,12 @@ class ClaimResearch:
     async def _search_and_read(self, query: str) -> list[Source]:
         results = await self._search(query)
         self.actions += 1
+        depth = DEPTH_DEEP if self.deep else DEPTH_SINGLE
         self._step(
-            ResearchAction.SEARCH, query, f"{len(results)} result(s).", [r.url for r in results]
+            ResearchAction.SEARCH,
+            query,
+            f"{len(results)} result(s) ({depth}).",
+            [r.url for r in results],
         )
         fresh = [r for r in results if is_http_url(r.url) and r.url not in self.sources]
         ranked = sorted(fresh, key=lambda r: (not primary_hint(r.url), r.rank))
@@ -659,7 +677,7 @@ class ClaimResearch:
             could_not_confirm = True
             note = "No relevant source was found within the research budget."
         confidence = min(confidence, 0.5)
-        self._step(ResearchAction.STOP, "unsupported", note)
+        self._step(ResearchAction.STOP, "unsupported", f"{reason} {note}")
         evidence = evidence_of(supporting) + evidence_of(contradicting)
         evidence.sort(key=lambda e: not e.is_primary)
         return self._finish(

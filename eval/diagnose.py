@@ -26,16 +26,23 @@ Nothing here calls a model: it only reads the report.
 
 from __future__ import annotations
 
+import re
 from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict
 
 from eval.dataset import SeededDefect, SeededDocument
 from eval.items import ItemKind, ReportItem, Role
+from secondread.agents.factcheck.research import (
+    DEPTH_DEEP,
+    DEPTH_SINGLE,
+    FETCH_FAILED_PREFIX,
+)
 from secondread.contracts import (
     LedgerEntry,
     Report,
     ResearchAction,
+    ResearchStep,
     Severity,
     Span,
     Verdict,
@@ -43,8 +50,7 @@ from secondread.contracts import (
 
 MAX_QUERIES_SHOWN = 2
 MAX_TEXT_CHARS = 90
-FETCH_FAILED_PREFIX = "Fetch failed"
-"""How the research loop words a page it could not fetch."""
+_FETCH_REASON = re.compile(rf"^{re.escape(FETCH_FAILED_PREFIX)} \((.*?)\)")
 
 
 class MissStage(StrEnum):
@@ -92,19 +98,40 @@ def has_fact_check(report: Report) -> bool:
     )
 
 
+def _planned_depth(searches: list[ResearchStep]) -> str:
+    """ "deep research" or "single search" as recorded on the first search step.
+
+    Empty for reports made before the research loop recorded it."""
+    for step in searches:
+        for depth in (DEPTH_DEEP, DEPTH_SINGLE):
+            if f"({depth})" in step.summary:
+                return depth
+    return ""
+
+
 def trail_summary(entry: LedgerEntry) -> str:
-    """One line on how a claim was researched: searches, pages, sources kept."""
+    """One line on how a claim was researched.
+
+    Planned depth, searches, pages fetched (with why any failed), sources kept,
+    rounds, why research ended, and the first queries tried.
+    """
     steps = entry.research_trail
     searches = [s for s in steps if s.action is ResearchAction.SEARCH]
     fetched = [s for s in steps if s.action is ResearchAction.FETCH_PAGE]
     failed = [s for s in fetched if s.summary.startswith(FETCH_FAILED_PREFIX)]
     rounds = max((s.iteration for s in steps), default=0)
+    depth = _planned_depth(searches)
     parts = [
-        f"{len(searches)} search(es), {len(fetched)} page(s) fetched ({len(failed)} failed), "
+        (f"planned {depth}; " if depth else "")
+        + f"{len(searches)} search(es), {len(fetched)} page(s) fetched ({len(failed)} failed), "
         f"{len(entry.verdict_evidence)} source(s) kept, {rounds} round(s)"
     ]
-    if len(searches) <= 1 and entry.verdict is not Verdict.UNCHECKED:
-        parts.append("single search, not deep research")
+    reasons = sorted({m.group(1) for s in failed if (m := _FETCH_REASON.match(s.summary))})
+    if reasons:
+        parts.append("fetch failures: " + ", ".join(reasons))
+    stops = [s for s in steps if s.action is ResearchAction.STOP]
+    if stops and stops[-1].summary:
+        parts.append(f"ended: {_clip(stops[-1].summary, 110)}")
     queries = [_clip(s.input, 70) for s in searches[:MAX_QUERIES_SHOWN]]
     if queries:
         parts.append("queries: " + " | ".join(f'"{q}"' for q in queries))

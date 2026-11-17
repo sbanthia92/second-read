@@ -7,6 +7,7 @@ from typing import Any
 import pytest
 
 from secondread.agents.factcheck import FactCheckAgent
+from secondread.agents.factcheck.research import DEPTH_DEEP, DEPTH_SINGLE, FETCH_FAILED_PREFIX
 from secondread.contracts import (
     MAX_RESEARCH_ITERATIONS,
     AddResearchStep,
@@ -21,6 +22,7 @@ from secondread.contracts import (
     Debater,
     Evidence,
     ExecutionPlan,
+    FetchError,
     ModelTier,
     Profile,
     ProgressStep,
@@ -529,6 +531,54 @@ async def test_plan_controls_depth_and_per_claim_budgets():
     # Shallow claim: a single search with the claim text, no query planning.
     assert len(llm.calls_for("factcheck.queries")) == 1
     assert search.queries == ["goals query", "goals again", POINTS]
+
+
+async def test_search_steps_record_the_planned_depth():
+    plan = ExecutionPlan(
+        profile=Profile.OPINION,
+        agents=[AgentName.FACTCHECK],
+        deep_research_claim_ids=["claim_goals"],
+        claim_budgets={"claim_fatigue": ClaimBudget(max_search_calls=0)},
+    )
+    llm = FakeLLM(
+        {
+            "factcheck.queries": {"queries": ["goals query"]},
+            "factcheck.assess": assess(src(GEN_URL, "irrelevant")),
+            "factcheck.judge": judge("unsupported"),
+        }
+    )
+    ctx = make_context(
+        ledger=sample_ledger(),
+        llm=llm,
+        search=FakeSearch(default=[hit(GEN_URL)]),
+        fetcher=FakeFetcher({GEN_URL: GEN_TEXT}),
+        plan=plan,
+    )
+
+    result = await FactCheckAgent().run(ctx)
+
+    searches = [s for s in steps(result) if s.step.action is ResearchAction.SEARCH]
+    deep = [s for s in searches if s.claim_id == "claim_goals"]
+    single = [s for s in searches if s.step.input == POINTS]
+    assert deep and all(f"({DEPTH_DEEP})" in s.step.summary for s in deep)
+    assert single and all(f"({DEPTH_SINGLE})" in s.step.summary for s in single)
+
+
+async def test_failed_fetch_records_why_and_the_stop_reason():
+    ledger = ledger_of((POINTS, 0.6, "c_points"))
+    llm = FakeLLM({"factcheck.queries": {"queries": ["liverpool points"]}})
+    search = FakeSearch({"liverpool": [hit(PL_URL)]})  # no snippet to fall back on
+    fetcher = FakeFetcher({PL_URL: FetchError("HTTP 403")})
+    ctx = make_context(ledger=ledger, llm=llm, search=search, fetcher=fetcher)
+
+    result = await FactCheckAgent().run(ctx)
+
+    fetches = [s for s in steps(result) if s.step.action is ResearchAction.FETCH_PAGE]
+    assert [s.step.summary for s in fetches] == [f"{FETCH_FAILED_PREFIX} (HTTP 403)."]
+    # The unsupported verdict's last step says why research ended, then the note.
+    [stop] = [s for s in steps(result) if s.step.action is ResearchAction.STOP]
+    assert stop.step.summary.startswith("No further queries to try.")
+    assert verdicts(result)["c_points"].verdict is Verdict.UNSUPPORTED
 
 
 async def test_claims_beyond_top_n_are_unchecked():
