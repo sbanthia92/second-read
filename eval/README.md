@@ -166,9 +166,12 @@ same); the full detail is in the `.json` result under each defect's `miss`.
 
 `could_not_verify` and `flagged_unsupported` still alerted the author, which is
 why the "flagged at any level" metric can sit above recall. The detail on each
-line says how the claim was researched: searches, pages fetched (and how many
-failed), sources kept, rounds, and the first queries tried. A pipeline that
-keeps no research ledger (the single-prompt baseline) gets no diagnosis.
+line says how the claim was researched: whether it was planned for the full loop
+or a single search, searches, pages fetched (how many failed, and why: for
+example `HTTP 403` or `fetch timed out`), sources kept, rounds, why research
+ended, and the first queries tried. Reports saved before these were recorded
+show no planned depth or failure reasons. A pipeline that keeps no research
+ledger (the single-prompt baseline) gets no diagnosis.
 
 ## Running it for real
 

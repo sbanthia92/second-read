@@ -188,10 +188,43 @@ def test_trail_summary_counts_searches_pages_and_failures() -> None:
     assert '"liverpool 2019-20 points"' in text
 
 
-def test_trail_summary_marks_single_search_claims() -> None:
+def test_trail_summary_reads_the_planned_depth() -> None:
+    for depth in ("single search", "deep research"):
+        ledger = _ledger(Verdict.UNSUPPORTED)
+        ledger.add_research_step(
+            "c_wrong", _step(ResearchAction.SEARCH, "one query", f"3 result(s) ({depth}).")
+        )
+        assert f"planned {depth}; 1 search(es)" in trail_summary(ledger.entries["c_wrong"])
+
+
+def test_trail_summary_does_not_guess_the_depth_of_older_reports() -> None:
     ledger = _ledger(Verdict.UNSUPPORTED)
-    ledger.add_research_step("c_wrong", _step(ResearchAction.SEARCH, "one query"))
-    assert "single search, not deep research" in trail_summary(ledger.entries["c_wrong"])
+    ledger.add_research_step("c_wrong", _step(ResearchAction.SEARCH, "one query", "3 result(s)."))
+    text = trail_summary(ledger.entries["c_wrong"])
+    assert "planned" not in text and "not deep" not in text
+
+
+def test_trail_summary_shows_fetch_failure_reasons_and_how_research_ended() -> None:
+    ledger = _ledger(Verdict.UNSUPPORTED)
+    for step in (
+        _step(ResearchAction.FETCH_PAGE, "https://a.example/1", "Fetch failed (HTTP 403)."),
+        _step(
+            ResearchAction.FETCH_PAGE,
+            "https://b.example/2",
+            "Fetch failed (HTTP 403); using the search snippet.",
+        ),
+        _step(ResearchAction.FETCH_PAGE, "https://c.example/3", "Fetch failed (fetch timed out)."),
+        _step(
+            ResearchAction.STOP,
+            "unsupported",
+            "Research stopped: no better sources expected. No relevant source was found.",
+        ),
+    ):
+        ledger.add_research_step("c_wrong", step)
+    text = trail_summary(ledger.entries["c_wrong"])
+    assert "(3 failed)" in text
+    assert "fetch failures: HTTP 403, fetch timed out" in text
+    assert "ended: Research stopped: no better sources expected." in text
 
 
 # -- scoring and aggregation -----------------------------------------------------------
