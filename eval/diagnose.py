@@ -33,6 +33,7 @@ from pydantic import BaseModel, ConfigDict
 
 from eval.dataset import SeededDefect, SeededDocument
 from eval.items import ItemKind, ReportItem, Role
+from eval.textspan import spans_match
 from secondread.agents.factcheck.research import (
     DEPTH_DEEP,
     DEPTH_SINGLE,
@@ -148,11 +149,9 @@ def _entry_detail(entry: LedgerEntry) -> str:
     return f"verdict {entry.verdict.value}{confidence}. {trail_summary(entry)}.{note}"
 
 
-def _span_ok(span: Span, defect: Span) -> bool:
-    # Same rule the scorer uses for items: overlap, and not a catch-all.
-    defect_len = defect.end - defect.start
-    limit = max(4 * defect_len, defect_len + 80)
-    return span.overlaps(defect) and span.end - span.start <= limit
+def _span_ok(span: Span, defect: SeededDefect) -> bool:
+    """The scorer's rule: overlaps the planted error and is not a catch-all."""
+    return spans_match(span, defect.located, defect.sentence)
 
 
 def fact_items_on(items: list[ReportItem], defect: SeededDefect) -> list[ReportItem]:
@@ -163,7 +162,7 @@ def fact_items_on(items: list[ReportItem], defect: SeededDefect) -> list[ReportI
         for i in items
         if i.kind is ItemKind.FINDING
         and i.roles & fact_roles
-        and any(_span_ok(s, defect.located) for s in i.spans)
+        and any(_span_ok(s, defect) for s in i.spans)
     ]
 
 
@@ -187,7 +186,7 @@ def _classify(
     if not has_fact_check(report):
         return None
     span = defect.located
-    entries = [e for e in report.ledger.claims_overlapping(span) if _span_ok(e.claim.span, span)]
+    entries = [e for e in report.ledger.claims_overlapping(span) if _span_ok(e.claim.span, defect)]
     flags = fact_items_on(items, defect)
 
     wide = [
@@ -195,7 +194,7 @@ def _classify(
         for i in items
         if i.kind is ItemKind.FINDING
         and Role.WRONG in i.roles
-        and any(s.overlaps(span) and not _span_ok(s, span) for s in i.spans)
+        and any(s.overlaps(span) and not _span_ok(s, defect) for s in i.spans)
     ]
     if wide and not entries:
         return MissDiagnosis(

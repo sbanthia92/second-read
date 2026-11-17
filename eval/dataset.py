@@ -20,6 +20,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
+from eval.textspan import sentence_span
 from secondread.contracts import Document, Profile, Severity, Span, Verdict
 
 DATA_DIR = Path(__file__).parent / "data"
@@ -125,6 +126,9 @@ class SeededDefect(BaseModel):
     source_title: str | None = None
     rule: ConflictRule | None = None
     note: str = ""
+    sentence: Span | None = None
+    """The sentence that contains the defect; set when the document is loaded.
+    A finding on the whole sentence still counts as being about the defect."""
 
     @model_validator(mode="after")
     def _type_fields(self) -> SeededDefect:
@@ -176,6 +180,7 @@ class SeededDocument(BaseModel):
             raise ValueError(f"{self.id}: duplicate defect ids {dupes}")
         for defect in self.defects:
             defect.span = locate_defect(self.text, defect, doc_id=self.id)
+            defect.sentence = sentence_span(self.text, defect.span)
         return self
 
     @property

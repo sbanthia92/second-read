@@ -5,6 +5,7 @@ Commands:
 - ``validate``: load the dataset and check every answer-key span.
 - ``list``: list the seeded documents and their defect counts.
 - ``run``: run pipelines over the dataset and print the results table.
+- ``rescore``: score the saved reports of a past run again, offline and free.
 
 Pipelines (``-p``, repeatable) are either built-in names or import specs:
 
@@ -32,10 +33,10 @@ from typing import Any, cast
 from eval.baseline import BaselineReviewer
 from eval.dataset import DatasetError, DefectType, SeededDocument, load_dataset
 from eval.fake_pipeline import builtin_pipelines
-from eval.harness import RESULTS_DIR, run_eval, save_results
+from eval.harness import RESULTS_DIR, rescore_reports, run_eval, save_results
 from eval.judge import LLMJudge
 from eval.metrics import DocScore
-from eval.results import render_misses
+from eval.results import EvalResults, render_misses
 from secondread.contracts import LLMClient, ReviewPipeline, utcnow
 
 
@@ -123,6 +124,35 @@ def cmd_list(args: argparse.Namespace) -> int:
     return 0
 
 
+def _print_results(results: EvalResults) -> None:
+    """The table, the missed defects and, when there is a ledger, why they were missed."""
+    print(results.table())
+    missed = {p: m for p, m in results.missed().items() if m}
+    if missed:
+        print("\nMissed defects:")
+        for pipeline, entries in missed.items():
+            print(f"- {pipeline}: " + "; ".join(entries))
+    misses = render_misses(results)
+    if misses:
+        print("\n" + misses)
+
+
+def cmd_rescore(args: argparse.Namespace) -> int:
+    reports = Path(args.reports)
+    if not reports.is_dir():
+        raise CLIError(f"no such directory: {reports}")
+    results = asyncio.run(rescore_reports(load_dataset(args.data), reports))
+    if not results.scores:
+        raise CLIError(f"no saved reports for known documents in {reports}")
+    _print_results(results)
+    print(
+        "\nRescored offline from saved reports: no judge, so precision and citation "
+        "validity are n/a.",
+        file=sys.stderr,
+    )
+    return 0
+
+
 def cmd_run(args: argparse.Namespace) -> int:
     ids = [i for i in args.docs.split(",") if i] if args.docs else None
     dataset = load_dataset(args.data, ids=ids)
@@ -150,15 +180,7 @@ def cmd_run(args: argparse.Namespace) -> int:
             reports_dir=reports_dir,
         )
     )
-    print(results.table())
-    missed = {p: m for p, m in results.missed().items() if m}
-    if missed:
-        print("\nMissed defects:")
-        for pipeline, entries in missed.items():
-            print(f"- {pipeline}: " + "; ".join(entries))
-    misses = render_misses(results)
-    if misses:
-        print("\n" + misses)
+    _print_results(results)
     if not args.no_save:
         json_path, md_path = save_results(results, args.out)
         print(f"\nwrote {json_path} and {md_path}", file=sys.stderr)
@@ -190,6 +212,11 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--no-save", action="store_true", help="do not write result files")
     run.add_argument("-q", "--quiet", action="store_true", help="no per-document progress")
     run.set_defaults(func=cmd_run)
+    rescore = sub.add_parser(
+        "rescore", help="score a past run's saved reports again, offline and free"
+    )
+    rescore.add_argument("reports", type=Path, help="a results/<stamp>-reports directory")
+    rescore.set_defaults(func=cmd_rescore)
     return parser
 
 

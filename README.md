@@ -215,7 +215,9 @@ this test did not separate that from the other design choices. Every finding
 names its source so you can check it in one click. It is slower, uses about 27
 times the tokens, and did worse on borrowed sentences.
 
-**Limits of this test.** It is small: 19 errors, one run each, so each error
+**Limits of this test.** The October numbers above were scored with a stricter
+matching rule than the one in use now, which also counts a finding on the whole
+sentence that holds a short planted phrase. It is small: 19 errors, one run each, so each error
 is worth about five points and the exact percentages are rough. It does not
 measure false alarms (true facts wrongly called wrong) for either setup. It
 does not say which of the six misses were careful "could not verify" results

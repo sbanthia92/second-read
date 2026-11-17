@@ -16,6 +16,7 @@ here, around the pipeline call only (scoring and judging are excluded).
 from __future__ import annotations
 
 import asyncio
+import re
 import time
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
@@ -171,3 +172,66 @@ def save_results(results: EvalResults, directory: Path | None = None) -> tuple[P
     body = results.table() + ("\n\n" + misses if misses else "")
     md_path.write_text(body + "\n", encoding="utf-8")
     return json_path, md_path
+
+
+_REPEAT_SUFFIX = re.compile(r"^(?P<rest>.+)-r(?P<repeat>\d+)$")
+
+
+def _parse_report_name(
+    stem: str, dataset: Mapping[str, SeededDocument]
+) -> tuple[str, SeededDocument, int] | None:
+    """Split ``<pipeline>-<doc id>-r<repeat>`` into its parts, or None if it is not one.
+
+    Pipeline names and document ids both contain hyphens, so the document id is
+    found by matching known ids against the end of the name.
+    """
+    match = _REPEAT_SUFFIX.match(stem)
+    if match is None:
+        return None
+    rest = match.group("rest")
+    for doc_id, seeded in dataset.items():
+        suffix = f"-{doc_id}"
+        if rest.endswith(suffix) and len(rest) > len(suffix):
+            return rest[: -len(suffix)], seeded, int(match.group("repeat"))
+    return None
+
+
+def load_saved_reports(
+    dataset: Sequence[SeededDocument], reports_dir: Path
+) -> list[tuple[str, SeededDocument, int, Report]]:
+    """Every saved report in ``reports_dir`` as (pipeline, document, repeat, report).
+
+    Reads ``<pipeline>-<doc id>-r<repeat>.json`` files, as written by
+    ``run_eval(reports_dir=...)``. Files that are not saved reports for a
+    document in ``dataset`` are skipped.
+    """
+    by_id = {d.id: d for d in dataset}
+    found: list[tuple[str, SeededDocument, int, Report]] = []
+    for path in sorted(reports_dir.glob("*.json")):
+        parsed = _parse_report_name(path.stem, by_id)
+        if parsed is None:
+            continue
+        pipeline, seeded, repeat = parsed
+        report = Report.model_validate_json(path.read_text(encoding="utf-8"))
+        found.append((pipeline, seeded, repeat, report))
+    return found
+
+
+async def rescore_reports(dataset: Sequence[SeededDocument], reports_dir: Path) -> EvalResults:
+    """Score reports a past run saved, with the current scoring rules.
+
+    Costs nothing: the reports are scored offline. There is no judge, so
+    precision and citation validity come out ``n/a``, and timings are not known.
+    """
+    scores = [
+        await score_report(seeded, report, pipeline=pipeline, repeat=repeat)
+        for pipeline, seeded, repeat, report in load_saved_reports(dataset, reports_dir)
+    ]
+    pipelines = list(dict.fromkeys(s.pipeline for s in scores))
+    return EvalResults(
+        pipelines=pipelines,
+        doc_ids=list(dict.fromkeys(s.doc_id for s in scores)),
+        repeats=max((s.repeat for s in scores), default=0) + 1,
+        judged=False,
+        scores=scores,
+    )
