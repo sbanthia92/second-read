@@ -31,6 +31,7 @@ from urllib.parse import urlparse
 from pydantic import BaseModel, ConfigDict, Field
 
 from eval.dataset import RECALL_TYPES, ConflictRule, DefectType, SeededDefect, SeededDocument
+from eval.diagnose import MissDiagnosis, diagnose_miss, flagged_at_any_level
 from eval.items import (
     ItemKind,
     ReportItem,
@@ -59,6 +60,9 @@ ACCEPTED_ROLES: dict[DefectType, frozenset[Role]] = {
     DefectType.GRAMMAR: frozenset({Role.STYLE}),
 }
 """Item roles that count as catching each defect type."""
+
+FACT_DEFECT_TYPES = frozenset({DefectType.WRONG_FACT, DefectType.UNSUPPORTED})
+"""Defect types the fact-checker is responsible for (diagnosed when missed)."""
 
 NEEDS_SOURCE_TAG = "[needs-source]"
 """Answer-key tag for facts that cannot be judged from memory."""
@@ -95,6 +99,14 @@ class DefectOutcome(BaseModel):
     from memory, only by checking a source."""
     sourced: bool = False
     """Caught by at least one item that cites a well-formed source."""
+    flagged: bool = False
+    """Fact defects only: the author was alerted to the sentence in any fact
+    finding, including "unsupported" and "could not verify" (so it includes
+    ``caught``). Always False for the other defect types."""
+    miss: MissDiagnosis | None = None
+    """Fact defects only, when not caught: the stage where the error got
+    through. None for other types, for caught defects, and for pipelines that
+    keep no fact-checking ledger."""
 
 
 class ConflictOutcome(BaseModel):
@@ -373,6 +385,10 @@ async def score_report(
             needs_source=NEEDS_SOURCE_TAG in defect.note,
             sourced=any(evidence_wellformed(e) for i in hits for e in i.evidence),
         )
+        if defect.type in FACT_DEFECT_TYPES:
+            outcome.flagged = outcome.caught or flagged_at_any_level(items, defect)
+            if not outcome.caught:
+                outcome.miss = diagnose_miss(seeded, report, defect, items)
         if judge is not None and hits and defect.type is DefectType.WEAK_ARGUMENT:
             scores = [
                 await judge.rebuttal_strength(

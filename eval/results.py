@@ -17,6 +17,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 
 from eval.dataset import RECALL_TYPES, DefectType
+from eval.diagnose import ALERTED_STAGES, MissStage
 from eval.metrics import ConflictStatus, DocScore
 from secondread.contracts import utcnow
 
@@ -29,6 +30,7 @@ METRICS: list[tuple[str, str, str]] = [
     ("recall.overall", "Recall: overall", RATIO),
     ("recall.needs_source", "Recall: wrong facts that need a source", RATIO),
     ("recall.wrong_fact_sourced", "Wrong facts caught with a cited source", RATIO),
+    ("recall.wrong_fact_flagged", "Wrong facts flagged at any level", RATIO),
     ("fact_findings_sourced", "Fact findings that cite a source", RATIO),
     ("true_facts_flagged", "True facts called wrong", RATIO),
     ("precision", "Precision (matched + judge)", RATIO),
@@ -68,6 +70,7 @@ def run_metrics(scores: list[DocScore]) -> dict[str, float | None]:
     out["recall.wrong_fact_sourced"] = _ratio(
         sum(o.caught and o.sourced for o in wrong), len(wrong)
     )
+    out["recall.wrong_fact_flagged"] = _ratio(sum(o.flagged for o in wrong), len(wrong))
     out["fact_findings_sourced"] = _ratio(
         sum(s.fact_items_sourced for s in scores), sum(s.fact_items for s in scores)
     )
@@ -157,6 +160,36 @@ class EvalResults(BaseModel):
                     )
         return out
 
+    def miss_diagnoses(self) -> dict[str, list[str]]:
+        """Pipeline → one line per missed fact defect saying where it got through.
+
+        Each line reads ``doc:defect (type) rN: stage: "sentence" - detail``. Pipelines with no
+        fact-checking ledger (the single-prompt baseline) have no lines.
+        """
+        out: dict[str, list[str]] = {p: [] for p in self.pipelines}
+        for s in self.scores:
+            if s.error is not None:
+                continue
+            for o in s.defects:
+                if o.miss is not None:
+                    out.setdefault(s.pipeline, []).append(
+                        f"{s.doc_id}:{o.defect_id} ({o.type.value}) r{s.repeat}: "
+                        f'{o.miss.stage.value}: "{o.miss.quote}" - {o.miss.detail}'
+                    )
+        return out
+
+    def miss_stage_counts(self) -> dict[str, dict[str, int]]:
+        """Pipeline → stage → how many missed fact defects got through there."""
+        out: dict[str, dict[str, int]] = {}
+        for s in self.scores:
+            if s.error is not None:
+                continue
+            for o in s.defects:
+                if o.miss is not None:
+                    counts = out.setdefault(s.pipeline, {})
+                    counts[o.miss.stage.value] = counts.get(o.miss.stage.value, 0) + 1
+        return out
+
     def per_run(self) -> dict[str, list[dict[str, float | None]]]:
         """Pipeline → one metrics dict per repeat."""
         grouped: dict[tuple[str, int], list[DocScore]] = defaultdict(list)
@@ -177,6 +210,37 @@ class EvalResults(BaseModel):
     def table(self) -> str:
         """Markdown results table: one row per metric, one column per pipeline."""
         return render_table(self)
+
+
+def render_misses(results: EvalResults) -> str:
+    """Markdown on why fact errors were missed: stage counts, then one line each.
+
+    Empty when no pipeline has a fact-checking ledger to read.
+    """
+    counts = results.miss_stage_counts()
+    details = results.miss_diagnoses()
+    if not counts:
+        return ""
+    alerted = {s.value for s in ALERTED_STAGES}
+    lines = ["Why fact errors were missed (by stage):", ""]
+    for pipeline, by_stage in counts.items():
+        total = sum(by_stage.values())
+        parts = ", ".join(
+            f"{stage.value}: {by_stage[stage.value]}"
+            for stage in MissStage
+            if stage.value in by_stage
+        )
+        alerted_n = sum(n for stage, n in by_stage.items() if stage in alerted)
+        lines.append(f"- {pipeline}: {total} missed. {parts}.")
+        lines.append(
+            f"  Of these, {alerted_n} still flagged the sentence (could_not_verify or "
+            "flagged_unsupported), so the author was alerted."
+        )
+    lines += ["", "Each miss:", ""]
+    for pipeline, entries in details.items():
+        for entry in entries:
+            lines.append(f"- {pipeline} {entry}")
+    return "\n".join(lines)
 
 
 def _fmt(stat: Stat, kind: str) -> str:

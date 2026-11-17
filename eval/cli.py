@@ -35,6 +35,7 @@ from eval.fake_pipeline import builtin_pipelines
 from eval.harness import RESULTS_DIR, run_eval, save_results
 from eval.judge import LLMJudge
 from eval.metrics import DocScore
+from eval.results import render_misses
 from secondread.contracts import LLMClient, ReviewPipeline, utcnow
 
 
@@ -155,6 +156,9 @@ def cmd_run(args: argparse.Namespace) -> int:
         print("\nMissed defects:")
         for pipeline, entries in missed.items():
             print(f"- {pipeline}: " + "; ".join(entries))
+    misses = render_misses(results)
+    if misses:
+        print("\n" + misses)
     if not args.no_save:
         json_path, md_path = save_results(results, args.out)
         print(f"\nwrote {json_path} and {md_path}", file=sys.stderr)
