@@ -170,7 +170,14 @@ the claim, it is "unsupported" (must fix); when no adequate source was found,
 it is reported as "could not verify" at lower severity, because failing to find
 a source is not evidence of an error. Before giving up, a claim gets a "second
 look" at pages already fetched for the document's other claims, which costs no
-search calls. The evidence attached to a finding is limited to the sources the
+search calls. A claim that carries a checkable detail (a number, date or name),
+that the first pass left open (not settled, and nothing contradicting it), and
+that has rounds left under the three-round cap also gets one more search from a
+different angle: the model proposes a new query aimed at the unconfirmed part, and
+code skips it if it only repeats an earlier one. It costs one model call and one
+search, only on those claims, and a failure there leaves the first pass's result
+standing. A claim that one source already contradicts does not get it, because it
+needs a second source, not a new angle. The evidence attached to a finding is limited to the sources the
 judge says it relied on.
 
 ### Conflict rules

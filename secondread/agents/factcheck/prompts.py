@@ -3,6 +3,8 @@
 Prompt tags (``LLMClient.complete(tag=...)``), all at ``ModelTier.MID``:
 
 - ``factcheck.queries``: search queries for one claim (schema ``QueryPlan``).
+- ``factcheck.retry``: one new query for a claim the first search left
+  unsettled, taking a different angle (schema ``QueryPlan``).
 - ``factcheck.assess``: stance of each retrieved source and the next research
   step (schema ``Assessment``).
 - ``factcheck.judge``: final verdict proposal from the collected evidence
@@ -24,6 +26,7 @@ from secondread.agents.factcheck.sources import Source
 from secondread.contracts import Claim, Evidence, Message
 
 TAG_QUERIES = "factcheck.queries"
+TAG_RETRY = "factcheck.retry"
 TAG_ASSESS = "factcheck.assess"
 TAG_JUDGE = "factcheck.judge"
 TAG_DEBATE = "factcheck.debate"
@@ -47,6 +50,23 @@ official table, filing, transcript or publication) over commentary.
 - If the claim has several parts, target the part most likely to be wrong.
 - Use the surrounding passage, when given, to make each query specific: name \
 the people, teams, organisations, competition and year the claim is about.
+
+{_UNTRUSTED_RULES}"""
+
+RETRY_SYSTEM = f"""\
+You are the fact-checker in a document review team. A first web search for one \
+factual claim did not settle it: no source confirmed or contradicted the \
+specific detail. Write ONE new search query that takes a different angle.
+- Aim at the detail that is still unconfirmed (a number, date, name, place or \
+order of events); the "parts still unconfirmed" list names it when given.
+- Search for the fact itself, not the claim's wording: ask for the actual value \
+(the attendance, the scorers, the venue, the date) together with the event, \
+competition and year. Do not assume the claim is true.
+- Prefer a query likely to surface the primary source (an official match \
+report, a league or governing-body site, a government release, official \
+statistics, a filing).
+- Do not repeat or lightly reword the queries already tried.
+- Return the query as the single entry of "queries".
 
 {_UNTRUSTED_RULES}"""
 
@@ -242,6 +262,27 @@ def judge_messages(
     )
     return [
         Message(role="system", content=JUDGE_SYSTEM),
+        Message(role="user", content=content),
+    ]
+
+
+def retry_messages(
+    claim: Claim, tried: list[str], context: str = "", open_parts: list[str] | None = None
+) -> list[Message]:
+    """Messages for ``factcheck.retry``: the claim, what is unconfirmed, queries tried.
+
+    The queries already tried are model-written and can echo web text, so they
+    go in a delimited block like any other retrieved data.
+    """
+    earlier = "\n".join(_neutralise(q)[:300] for q in tried[:6]) or "(none)"
+    content = (
+        f"Claim to check:\n{document_block(claim, context)}\n\n"
+        f"Parts the research found no source for: {_parts_text(open_parts)}\n\n"
+        f"Queries already tried:\n"
+        f"{source_block('about:earlier-queries', 'queries already tried', earlier, kind='queries')}"
+    )
+    return [
+        Message(role="system", content=RETRY_SYSTEM),
         Message(role="user", content=content),
     ]
 

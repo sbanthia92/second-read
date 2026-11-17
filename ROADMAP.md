@@ -99,6 +99,9 @@ remote server under "Later: hosted version".
 
 - Published on PyPI (`second-read`), in the official MCP Registry and on
   Glama.
+- A second search, from a different angle, for claims the first pass left open
+  (a checkable detail, nothing contradicting, rounds left). Not yet measured:
+  compare the `could_not_verify` count in the next evaluation run.
 - Tool title and annotations on `review_document`, a Privacy section in the
   README, and `SECURITY.md`.
 - `ARCHITECTURE.md` describes the system, its design decisions and trade-offs.

@@ -5,7 +5,9 @@ link to the primary source), fetch the most promising pages, find the
 relevant passages, and let the model assess each source. The loop stops when
 a primary source settles the claim, when two independent sources agree, when
 the model says further research will not help, when the budget runs out, or
-at the cap. A final judge call proposes the verdict; code enforces that
+at the cap. A claim with a checkable detail that the first pass left open (not
+settled, nothing contradicting it) and that has rounds left gets one more
+search from a different angle. A final judge call proposes the verdict; code enforces that
 "verified" and "wrong" are only given when the evidence settles the claim,
 otherwise the claim is "unsupported" with the confidence noted.
 """
@@ -29,6 +31,7 @@ from secondread.agents.factcheck.schemas import (
 from secondread.agents.factcheck.sources import (
     Source,
     find_in_page,
+    has_checkable_detail,
     is_http_url,
     is_reputable,
     looks_like_injection,
@@ -85,6 +88,8 @@ SECOND_LOOK_MIN_TERMS = 3
 """Claim terms a page's passages must share to be worth a second look."""
 SECOND_LOOK_TOKENS = 4_000
 """Extra per-claim token allowance for the second look."""
+RETRY_TOKENS = 10_000
+"""Extra per-claim token allowance for the second search."""
 
 DEPTH_DEEP = "deep research"
 DEPTH_SINGLE = "single search"
@@ -96,6 +101,7 @@ in brackets, e.g. ``Fetch failed (HTTP 403).``"""
 MAX_FETCH_REASON_CHARS = 80
 
 _OUT_QUERIES = 300
+_OUT_RETRY = 200
 _OUT_ASSESS = 1_000
 _OUT_JUDGE = 900
 MAX_OPEN_PARTS = 8
@@ -176,6 +182,8 @@ class ClaimResearch:
         self.sources: dict[str, Source] = {}
         self.fetch_error = ""
         """Why the most recent fetch failed (a short, safe message), or empty."""
+        self.queries_tried: list[str] = []
+        self.second_attempt_used = False
         self.open_parts: list[str] | None = None
         """Parts of the claim no source has confirmed or contradicted yet
         (None until the first assessment)."""
@@ -297,6 +305,7 @@ class ClaimResearch:
     async def _search_and_read(self, query: str) -> list[Source]:
         results = await self._search(query)
         self.actions += 1
+        self.queries_tried.append(query)
         depth = DEPTH_DEEP if self.deep else DEPTH_SINGLE
         self._step(
             ResearchAction.SEARCH,
@@ -376,6 +385,62 @@ class ClaimResearch:
             return True
         return settles(sources, Stance.SUPPORTS) and not self.open_parts
 
+    # -- second attempt ------------------------------------------------------
+
+    def _worth_a_second_attempt(self) -> bool:
+        """True if a claim the first pass left open deserves one more search.
+
+        Only for claims with a checkable detail, where nothing contradicts the
+        claim (a disputed claim needs a second source, not a new angle), that
+        are not already settled, have rounds left under the hard cap of
+        ``MAX_RESEARCH_ITERATIONS``, and where the job still has searches left.
+        """
+        if self.second_attempt_used or self.actions == 0:
+            return False
+        if self.iteration >= MAX_RESEARCH_ITERATIONS:
+            return False
+        if not has_checkable_detail(self.claim.checkable_text):
+            return False
+        if relevant(list(self.sources.values()), Stance.CONTRADICTS) or self._settled():
+            return False
+        return self.ctx.meter.searches_left() > 0
+
+    async def _retry_query(self) -> str | None:
+        """A new query for the unconfirmed part, or None if the model offers nothing new."""
+        plan = await self._llm(
+            prompts.retry_messages(self.claim, self.queries_tried, self.context, self.open_parts),
+            QueryPlan,
+            prompts.TAG_RETRY,
+            _OUT_RETRY,
+        )
+        tried = {q.casefold() for q in self.queries_tried}
+        for raw in plan.queries:
+            query = " ".join(raw.split())
+            if query and query.casefold() not in tried:
+                return query
+        return None
+
+    async def _second_attempt(self) -> bool:
+        """One more query from a different angle, searched, read and assessed.
+
+        Returns True if a second search ran. Anything that goes wrong (budget,
+        a provider error) leaves the first pass's result standing.
+        """
+        self.second_attempt_used = True
+        self.max_searches += 1
+        self.max_tokens += RETRY_TOKENS
+        try:
+            query = await self._retry_query()
+            if query is None:
+                return False
+            self.iteration += 1
+            batch = await self._search_and_read(query)
+            if batch:
+                await self._assess(batch, query)
+        except (BudgetExceeded, ProviderError):
+            return False
+        return True
+
     # -- entry points ------------------------------------------------------
 
     async def run(self) -> ClaimOutcome:
@@ -383,6 +448,7 @@ class ClaimResearch:
         reason = "Research cap reached without a settling source."
         if self.max_searches == 0 or self.ctx.meter.searches_left() == 0:
             return await self._conclude("No search budget left.")
+        budget_ran_short = False
         try:
             pending = deque(await self._plan_queries())
             follow: str | None = None
@@ -423,6 +489,13 @@ class ClaimResearch:
                     pending.popleft()
         except BudgetExceeded as exc:
             reason = f"Budget ran short ({exc})."
+            budget_ran_short = True
+        if not budget_ran_short and self._worth_a_second_attempt() and await self._second_attempt():
+            reason = (
+                "Settled by the evidence after a second search."
+                if self._settled()
+                else "Still unsettled after a second search."
+            )
         return await self._conclude(reason)
 
     async def recheck(self, prior: list[Evidence], counter: list[Evidence]) -> ClaimOutcome:
