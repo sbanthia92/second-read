@@ -25,6 +25,7 @@ from secondread.contracts import (
     Span,
 )
 from secondread.testing.fakes import FakeLLM, make_context
+from tests.agents.factcheck.test_agent import NO_NEW_QUERY
 
 
 def _source(url: str, stance: Stance, primary: bool = False) -> Source:
@@ -124,7 +125,10 @@ async def test_claims_run_concurrently_with_a_small_bound():
             )
         )
     search = _SlowSearch()
-    ctx = make_context(ledger=ledger, llm=FakeLLM({"factcheck.queries": {"queries": ["q"]}}))
+    ctx = make_context(
+        ledger=ledger,
+        llm=FakeLLM({"factcheck.queries": {"queries": ["q"]}, "factcheck.retry": NO_NEW_QUERY}),
+    )
     ctx.search = search
     result = await FactCheckAgent(concurrency=3).run(ctx)
     assert result.error is None

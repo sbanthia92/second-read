@@ -10,6 +10,7 @@ from secondread.contracts import Message, Severity, Verdict
 from secondread.testing.fakes import FakeFetcher, FakeLLM, FakeSearch, make_context
 from tests.agents.factcheck.test_agent import (
     GOALS,
+    NO_NEW_QUERY,
     POINTS,
     assess,
     hit,
@@ -46,6 +47,7 @@ def test_host_quality_lists():
 async def test_one_reputable_source_verifies_an_uncontested_claim():
     llm = FakeLLM(
         {
+            "factcheck.retry": NO_NEW_QUERY,
             "factcheck.queries": {"queries": ["liverpool 99 points"]},
             "factcheck.assess": assess(src(BBC, "supports", QUOTE)),
             "factcheck.judge": judge("verified", 0.9),
@@ -65,6 +67,7 @@ async def test_one_reputable_source_verifies_an_uncontested_claim():
 async def test_one_unknown_source_is_could_not_confirm_not_unsupported():
     llm = FakeLLM(
         {
+            "factcheck.retry": NO_NEW_QUERY,
             "factcheck.queries": {"queries": ["liverpool 99 points"]},
             "factcheck.assess": assess(src(BLOG, "supports", QUOTE)),
             "factcheck.judge": judge("verified", 0.9),
@@ -83,6 +86,7 @@ async def test_one_unknown_source_is_could_not_confirm_not_unsupported():
 async def test_two_social_posts_do_not_settle_a_claim():
     llm = FakeLLM(
         {
+            "factcheck.retry": NO_NEW_QUERY,
             "factcheck.queries": {"queries": ["liverpool 99 points"]},
             "factcheck.assess": assess(
                 src(INSTA, "supports", QUOTE), src(FACEBOOK, "supports", QUOTE)
@@ -102,7 +106,9 @@ async def test_two_social_posts_do_not_settle_a_claim():
 
 
 async def test_no_source_found_is_could_not_confirm():
-    llm = FakeLLM({"factcheck.queries": {"queries": ["liverpool 99 points"]}})
+    llm = FakeLLM(
+        {"factcheck.queries": {"queries": ["liverpool 99 points"]}, "factcheck.retry": NO_NEW_QUERY}
+    )
     ctx = _ctx(llm, FakeSearch(default=[]), FakeFetcher(), (POINTS, 0.6, "c1"))
     result = await FactCheckAgent().run(ctx)
     verdict = verdicts(result)["c1"]
@@ -117,6 +123,7 @@ async def test_sources_that_do_not_back_the_claim_are_a_must_fix_without_contrad
     explanation = "The sources say 97 points in a different season, not 99."
     llm = FakeLLM(
         {
+            "factcheck.retry": NO_NEW_QUERY,
             "factcheck.queries": {"queries": ["liverpool 99 points"]},
             "factcheck.assess": assess(src(BBC, "contradicts", QUOTE)),
             "factcheck.judge": {
@@ -159,6 +166,7 @@ async def test_second_look_uses_pages_fetched_for_other_claims():
 
     llm = FakeLLM(
         {
+            "factcheck.retry": NO_NEW_QUERY,
             "factcheck.queries": queries,
             "factcheck.assess": assess_reply,
             "factcheck.judge": judge_reply,
@@ -242,6 +250,7 @@ ESPN = "https://www.espn.com/soccer/story/liverpool-title"
 async def test_one_confirmed_part_does_not_verify_the_whole_claim():
     llm = FakeLLM(
         {
+            "factcheck.retry": NO_NEW_QUERY,
             "factcheck.queries": {"queries": ["liverpool 99 points"]},
             "factcheck.assess": assess(src(BBC, "supports", QUOTE)),
             # The judge says "verified" overall but admits one part is not.
@@ -268,6 +277,7 @@ async def test_one_confirmed_part_does_not_verify_the_whole_claim():
 async def test_a_contradicted_part_makes_the_claim_wrong():
     llm = FakeLLM(
         {
+            "factcheck.retry": NO_NEW_QUERY,
             "factcheck.queries": {"queries": ["liverpool 99 points"]},
             "factcheck.assess": assess(
                 src(BBC, "contradicts", QUOTE), src(WIKI, "contradicts", QUOTE)
@@ -295,6 +305,7 @@ async def test_a_contradicted_part_makes_the_claim_wrong():
 async def test_research_continues_while_parts_are_unconfirmed():
     llm = FakeLLM(
         {
+            "factcheck.retry": NO_NEW_QUERY,
             "factcheck.queries": {"queries": ["liverpool title 2019-20"]},
             "factcheck.assess": [
                 # Two independent sources support the claim, but one part is open.
@@ -329,6 +340,7 @@ async def test_research_continues_while_parts_are_unconfirmed():
 async def _single_contradiction(url: str, contested: bool) -> Any:
     llm = FakeLLM(
         {
+            "factcheck.retry": NO_NEW_QUERY,
             "factcheck.queries": {"queries": ["liverpool 99 points"]},
             "factcheck.assess": assess(src(url, "contradicts", QUOTE)),
             "factcheck.judge": {
@@ -369,6 +381,7 @@ RTE = "https://www.rte.ie/sport/soccer/busby"
 async def test_model_judged_major_news_counts_as_reputable():
     llm = FakeLLM(
         {
+            "factcheck.retry": NO_NEW_QUERY,
             "factcheck.queries": {"queries": ["liverpool 99 points"]},
             "factcheck.assess": assess(
                 {**src(RTE, "supports", QUOTE), "source_type": "major_news"}
@@ -386,6 +399,7 @@ async def test_model_judged_major_news_counts_as_reputable():
 async def test_social_host_is_never_reputable_whatever_the_model_says():
     llm = FakeLLM(
         {
+            "factcheck.retry": NO_NEW_QUERY,
             "factcheck.queries": {"queries": ["liverpool 99 points"]},
             "factcheck.assess": assess(
                 {**src(INSTA, "supports", QUOTE), "source_type": "major_news"}
@@ -435,6 +449,7 @@ async def test_supporting_claim_with_a_date_is_fact_checked():
     )
     llm = FakeLLM(
         {
+            "factcheck.retry": NO_NEW_QUERY,
             "factcheck.queries": {"queries": ["liverpool 99 points"]},
             "factcheck.assess": assess(src(BBC, "supports", QUOTE)),
             "factcheck.judge": judge("verified", 0.9),
