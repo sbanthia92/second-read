@@ -8,7 +8,13 @@ original.
 
 from __future__ import annotations
 
+import re
+
 from secondread.contracts import Span
+
+SPAN_SLACK_CHARS = 80
+SPAN_MAX_FACTOR = 4
+_SENTENCE_BREAK = re.compile(r"(?<=[.!?])[\"')\]]*\s+|\n+")
 
 _CHAR_MAP = {
     "‘": "'",
@@ -65,3 +71,39 @@ def locate_quote(text: str, quote: str) -> Span | None:
         if pos != -1:
             return Span(start=index[pos], end=index[pos + len(candidate) - 1] + 1)
     return None
+
+
+def sentence_span(text: str, span: Span) -> Span:
+    """The sentence (or line) that contains ``span``.
+
+    Sentences end at ``.``, ``!`` or ``?`` followed by whitespace, or at a line
+    break. A span that crosses a break gets the whole stretch it covers.
+    """
+    start, end = 0, len(text)
+    for match in _SENTENCE_BREAK.finditer(text):
+        if match.end() <= span.start:
+            start = match.end()
+        elif match.start() >= span.end:
+            end = match.start()
+            break
+    return Span(start=start, end=end)
+
+
+def allowed_span_length(defect: Span, sentence: Span | None = None) -> int:
+    """The longest finding or claim span that still counts as being about ``defect``.
+
+    A planted error is often a short phrase inside a long sentence ("the Danish
+    coach"), and the natural place to flag it is the whole sentence. So the limit
+    is the larger of a multiple of the defect's own length and the length of its
+    sentence, each with some slack. Whole paragraphs and documents stay too wide.
+    """
+    size = defect.end - defect.start
+    limit = max(SPAN_MAX_FACTOR * size, size + SPAN_SLACK_CHARS)
+    if sentence is not None:
+        limit = max(limit, (sentence.end - sentence.start) + SPAN_SLACK_CHARS)
+    return limit
+
+
+def spans_match(item: Span, defect: Span, sentence: Span | None = None) -> bool:
+    """Overlap by one character or more, and ``item`` is not a catch-all."""
+    return item.overlaps(defect) and item.end - item.start <= allowed_span_length(defect, sentence)

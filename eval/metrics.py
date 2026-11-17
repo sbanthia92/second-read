@@ -10,8 +10,9 @@ Matching rule (documented in ``eval/README.md``). An item (see
    ``grammar`` → ``style``. Roles come from severity and contributing agents,
    so merged findings count for every contributor.
 2. **Span**: one of the item's spans overlaps the defect span by at least one
-   character and is not a catch-all: its length is at most
-   ``max(4 × defect length, defect length + 80)`` characters.
+   character and is not a catch-all: its length is at most the larger of
+   ``4 × defect length``, ``defect length + 80`` and ``length of the defect's
+   sentence + 80`` characters (see ``eval.textspan.allowed_span_length``).
 
 A defect is **caught** if any item matches it. An item is a **true positive**
 if it matches any seeded defect; unmatched items go to the judge (if any) and
@@ -41,6 +42,7 @@ from eval.items import (
     report_items,
 )
 from eval.judge import EvalJudge
+from eval.textspan import spans_match
 from secondread.contracts import (
     Evidence,
     Rebuttal,
@@ -69,8 +71,6 @@ NEEDS_SOURCE_TAG = "[needs-source]"
 
 FACT_SEVERITIES = frozenset({Severity.FACTUAL_ERROR, Severity.UNSUPPORTED})
 
-SPAN_SLACK_CHARS = 80
-SPAN_MAX_FACTOR = 4
 MAX_REBUTTAL_CANDIDATES = 3
 """Rebuttals judged per weak-argument defect (the best score is kept)."""
 
@@ -161,13 +161,13 @@ class DocScore(BaseModel):
 # ---------------------------------------------------------------------------
 
 
-def span_matches(item_span: Span, defect_span: Span) -> bool:
-    """Overlap by one character or more, and the item span is not a catch-all."""
-    if not item_span.overlaps(defect_span):
-        return False
-    defect_len = defect_span.end - defect_span.start
-    limit = max(SPAN_MAX_FACTOR * defect_len, defect_len + SPAN_SLACK_CHARS)
-    return item_span.end - item_span.start <= limit
+def span_matches(item_span: Span, defect_span: Span, sentence: Span | None = None) -> bool:
+    """Overlap by one character or more, and the item span is not a catch-all.
+
+    ``sentence`` is the sentence containing the defect: a finding on the whole
+    sentence still counts (see ``eval.textspan.allowed_span_length``).
+    """
+    return spans_match(item_span, defect_span, sentence)
 
 
 def item_matches(item: ReportItem, defect: SeededDefect) -> bool:
@@ -175,7 +175,7 @@ def item_matches(item: ReportItem, defect: SeededDefect) -> bool:
     accepted = ACCEPTED_ROLES.get(defect.type)
     if accepted is None or not (item.roles & accepted):
         return False
-    return any(span_matches(s, defect.located) for s in item.spans)
+    return any(span_matches(s, defect.located, defect.sentence) for s in item.spans)
 
 
 # ---------------------------------------------------------------------------
@@ -452,7 +452,9 @@ async def score_report(
         if defect.rule is ConflictRule.REBUTTAL_ON_VERIFIED_FACT:
             score.true_facts += 1
             score.true_facts_flagged += any(
-                span_matches(s, defect.located) for i in wrong_items for s in i.spans
+                span_matches(s, defect.located, defect.sentence)
+                for i in wrong_items
+                for s in i.spans
             )
 
     score.conflicts = [check_conflict(d, report) for d in seeded.of_type(DefectType.CONFLICT)]

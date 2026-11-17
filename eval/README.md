@@ -8,7 +8,12 @@ uv run python -m eval list                         # documents and defect counts
 uv run python -m eval run -p oracle -p noisy --repeats 3
 uv run python -m eval run -p baseline -p full=secondread.pipeline:run_review \
     --llm mypkg.llm:make_client --judge --repeats 3
+uv run python -m eval rescore eval/results/<stamp>-reports   # free: score saved reports again
 ```
+
+`rescore` reads the reports a past run saved (`<stamp>-reports/`) and scores them
+again with the current rules, offline and for free. There is no judge, so
+precision and citation validity show `n/a`.
 
 `run` prints a markdown table (one row per metric, one column per pipeline,
 mean ± stdev across repeats) and writes `eval/results/<stamp>.json` and `.md`
@@ -117,8 +122,13 @@ An item **matches** a defect when:
    `unsupported` → unsupported or wrong; `weak_argument` → rebuttal;
    `borrowed_sentence` → originality; `grammar` → style; and
 2. one of its spans overlaps the defect span by at least one character and is
-   no longer than `max(4 × defect length, defect length + 80)` characters (no
-   catch-all spans).
+   no longer than the larger of `4 × defect length`, `defect length + 80` and
+   `length of the sentence containing the defect + 80` characters (no
+   catch-all spans). A planted error is often a short phrase inside a long
+   sentence ("the Danish coach"), and the whole sentence is the natural place to
+   flag it, so a finding on that sentence counts; a paragraph or the whole
+   document does not. Before this rule, only the first two limits applied, so a
+   correct sentence-level finding on a short phrase was scored as a miss.
 
 ## Metrics
 
